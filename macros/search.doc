@@ -1,0 +1,40 @@
+              SEARCH.TEC - the wildcard file searching macro
+
+     SEARCH will scan one or more wildcarded sets  of  files  for  all
+     occurances  of  one  or more strings.  Each match is displayed in
+     the log file with the character "~" immediately after the matched
+     string.  SEARCH also has a change mode (i.e., find and replace).
+
+     You use the MUNG command to invoke SEARCH and it  enters  into  a
+     dialogue with you.
+
+     The "Output:" question directs SEARCH's log  file.   The  default
+     log  file  is  to  your  terminal;  the default file extension is
+     .SRH.  If you are doing a change mode run,  you  place  the  /CHA
+     switch  on your answer to this question.  If the strings you wish
+     to search for  (or  the  replacement  strings)  contain  embedded
+     CR/LF's, you must add the /ESC switch to this question.  When you
+     say /ESC, your responses to the Search:  (and Replace:) questions
+     will  be  terminated  only by ESCape;  normally, either RETURN or
+     ESCape is the terminator.  You can always use DELete (RUBOUT) and
+     CTRL/U to edit your responses.
+
+     The "Input:" question is asking for an optionally wildcarded file
+     specification.    The   default  file  extension  is  .MAC.   You
+     terminate supplying file specifications by responding with simply
+     RETURN.
+
+     The "Lines:" question determines the number of extra lines around
+     the  found line to place in the log file.  An answer of 0 results
+     in only the found line;  the default value is 3.
+
+     The "Search:" question accepts the string(s) to search for.   All
+     normal  TECO  search  constructs are allowed.  Terminate entering
+     search strings with simply RETURN (or ESCape if you said /ESC).
+
+     The "Replace:" question will only appear if you  specified  /CHA.
+     After  each  Search:   is  responded  to, you enter a replacement
+     string for the last entered search string.
+
+     The "Detach:"  question  directs  SEARCH  to  detach  during  the
+     searching.  The default is to stay attached.

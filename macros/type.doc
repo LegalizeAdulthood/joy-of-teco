@@ -1,0 +1,62 @@
+                   TYPE.TEC - the TYPE command responder
+
+     TYPE.TEC  will  type  wild  carded  file   specifications.    The
+     filename,  extension,  or version number (except RSTS/E) can be *
+     or contains ?'s (RSTS/E only).  Under RSTS/E V7.0,  the  PPN  can
+     also contain *'s.
+
+     TYPE.TEC recognizes the following switches
+
+          /W        Announce  the  filespecification  of  every   file
+                    before it is typed.
+
+          /H        Use VT52 hold screen mode.  /H forces  on  the  /W
+                    switch.  On VT100's, the /H is turned into a /H:24
+                    (see below).
+
+          /H:n      Count n lines and  hold  the  screen.   This  also
+                    forces on the /W switch.
+
+          /-W       Turn off filespecification announcing.  Useful  if
+                    /H turned announcements on.
+
+          /V        This switch  changes  all  control  characters  to
+                    visable  characters.   It  is  useful  for finding
+                    funny carriage return/line  feed  sequences,  etc.
+                    The  actual  output format depends on the terminal
+                    you are using;  read the VTEDIT documentation.
+
+          /T        Truncate long line.
+
+          /S:"xxxx" Search  for  the  string  "xxxx"  before  starting
+                    typing.   Any  search  string  may be used and any
+                    character may  be  the  string  quoting  character
+                    (this example used ").
+
+          /A:n      Search for all occurances of the string  specified
+                    with  the /S switch.  The n is the number of lines
+                    around the match to display.  If just /A is  used,
+                    n defaults to 3.
+
+          /N:n      Start typing at page n or find the  nth  occurance
+                    of the string specified by /S.
+
+          /P        When the string specified by /S  is  found,  start
+                    typing at the top of that page instead of the line
+                    immediately before the found string.
+
+          /I        Inspect each (wildcarded) file before it is typed.
+
+          /F:x      Flag lower (x is L) or upper (x is  U)  case.   If
+                    just /F is specified then lower case is flagged.
+
+          /L:n      List only the first n lines of the file.  If  just
+                    /L  is specified then n defaults to the terminal's
+                    height (or 24 if unknown).
+
+          /O:n      Overprint each  line  n  times.   If  just  /O  is
+                    specified  then  n  defaults  to  1.   Useful  for
+                    darkened copies on a hardcopy terminal.
+
+     For RSTS/E, TYPE.TEC should be installed with a  protection  code
+     of <104>.

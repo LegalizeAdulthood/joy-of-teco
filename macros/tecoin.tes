@@ -1,0 +1,326 @@
+! * * * * * * * * * * * * * * * !
+!				!
+!      TECO pre-initializer	!
+!      !!TECO.INI V03.00!!	!
+!				!
+! Last edit on 12-Mar-80 by MHB	!
+!				!
+! * * * * * * * * * * * * * * * !
+!				!
+! Private defaulting:		!
+!				!
+!  VTEDIT mode(s), etc.		!
+!	#16  => SEEALL mode	!
+!	#32  => HOLD mode	!
+!	#265 => /NOCREATE	!
+[8 @^U8/#16#256/
+!				!
+!  Number of scrolling lines	!
+7U8
+!				!
+!  LC enable defaulting and	!
+!  formatter name decoding	!
+!	M7"T  => Enable LC	!
+!	M7"F  => Disable LC	!
+!	Qreg2 => Formatter name	!
+[7 @^U7/0U7 J <
+@S%.^ER^ER^ER%; ::@S%]%"S F< ' ::@S%^ER%"S F< '
+3R @^U2%FMT% .,.+3:X2
+::@S%CMD%"U
+::@S%CTL%"U
+::@S%MAC%"U
+::@S%ODL%"U
+::@S%TEC%"U
+-1U7 ' ' ' ' ' > Q7/
+!				!
+!  .B2S default switch		!
+[6 @^U6%/B2%
+!				!
+!  .BAS default switch		!
+[5 @^U5%/B2%
+!				!
+!  "ED" defaults		!
+[4 @^U4/4#1,0ED/
+!				!
+! * * * * * * * * * * * * * * * !
+!				!
+! Functions:			!
+!				!
+!  1.	Enables lower case	!
+!	based upon the user	!
+!	supplied M7.  M7 also	!
+!	optionally loads Q-reg	!
+!	2 with a formatter	!
+!	macro name.		!
+!				!
+!  2.	If the TECO command is	!
+!	present with no args or	!
+!	switches, grabs the	!
+!	file name from memory,	!
+!	if it can.		!
+!				!
+!  3.	Appends the appropriate	!
+!	switch for BASIC-PLUS-2	!
+!	(user supplied Q-reg 6)	!
+!	and BASIC-PLUS (user	!
+!	supplied Q-reg 5) files	!
+!	if no /B? or /n switch	!
+!	is already present.	!
+!				!
+!  4.	Defaults "ED" flag	!
+!	based upon the user	!
+!	supplied M4.		!
+!				!
+!  5.	If a refresh scope is	!
+!	present (ET$RFS), loads	!
+!	GTEDIT.  Else, if an	!
+!	interactive scope is	!
+!	present (ET$IAS), loads	!
+!	VTEDIT with mode(s)	!
+!	based upon the user	!
+!	supplied M8 unless	!
+!	/SCROLL is specified.	!
+!	If /SCROLL then number	!
+!	of scrolling lines is	!
+!	in Q8.			!
+!				!
+! Switches:			!
+!				!
+!  /LC	Enables lower case.	!
+!				!
+!  /NOLC Disables lower case.	!
+!				!
+!  /NS	Disables auto-loading	!
+!	of GTEDIT/VTEDIT macro.	!
+!				!
+!  /NOSCO[P]E]] Same as /NS.	!
+!				!
+!  /OFF	Disables this macro.	!
+!				!
+!  \	(following '.BAS' or	!
+!	'.B2S') Disables the	!
+!	automatic setting of	!
+!	BASIC-PLUS or		!
+!	BASIC-PLUS-2 switches.	!
+!				!
+! * * * * * * * * * * * * * * * !
+!				!
+! Q-regs passed:		!
+!	0 $ This macro...	!
+!	9 $ Memory file dir	!
+!				!
+! Q-regs used:			!
+!	1 % Exit flags:		!
+!	    +1 => Load VTEDIT	!
+!	    +2 => Inspect only	!
+!	    +4 => No use memory	!
+!	    +8 => Do /FIND	!
+!	   +16 => VTEDIT SEEALL	!
+!	   +32 => VTEDIT HOLD	!
+!	   +64 => Load GTEDIT	!
+!	  +128 => Scroll mode	!
+!	  +256 => /NOCREATE	!
+!	 +4096 => Init done	!
+!	 +8192 => Write mem	!
+!	+16384 => Display file	!
+!	+32768 => Memory used	!
+!	1 $ Scratch		!
+!	2 % ET bits to clear:	!
+!	    +4 => No lower case	!
+!	2 $ Formatter name	!
+!	3 % Announcement length	!
+!	3 $ Do announcements	!
+!	4 $ "ED" default	!
+!	5 $ .BAS default switch	!
+!	6 $ .B2S default switch	!
+!	7 % Scratch for M7 junk	!
+!	7 $ LC defaulting, etc.	!
+!	8 % Scrolling lines	!
+!	8 $ VTEDIT default mode	!
+!				!
+! * * * * * * * * * * * * * * * !
+! Save returned argument Q-reg	!
+[1 0,0X1 0U1
+! /OFF => Exit immediately	!
+J :@FS%/OFF%%"S @O!EXIT! '
+! Save Q-regs, set decimal	!
+[2 0,0X2 10U2 [2 ^D EDU2 [2 0ED ^XU2 [2 0^X [3
+! Do announcements if we can...	!
+0U3 ET&(1024#512)"N J ::@S%MU%"U
+ET&1024"N 72*256+40U3 @^U3/W/ |
+1:W*256+(2:W)U3 @^U3/-1W/ ' ' '
+Q3"N J Q3&255< @I%
+% >
+J 8L Q3/256/2-8< @I% % > @I%TECO Version % EO\ J M3
+J 5L Q3/256/2-8< @I% % > @I%... working ...% M3
+! Find the time of day		!
+-1EJ-7"E ^H"E @O!NOTIME! ' '
+-1EJ-4"E 1440-^HU1 | ^H/30U1 '
+Q1/60U2 Q2*40+Q1U1
+! Is this user crazy?		!
+J 12L
+Q1-0030"L @I%Are you crazy?% L @I%It's after midnight.% @O!MSG! '
+Q1-0400"L @O!NOMSG! '
+Q1-0430"L @I%Esta muy loco?% L @I%You should be in bed.% @O!MSG! '
+Q1-0830"L @O!NOMSG! '
+Q1-0900"L @I%The early bird% L @I%only gets worms.% @O!MSG! '
+Q1-1150"L @O!NOMSG! '
+Q1-1230"L @I%Go away.% L @I%It's time for lunch.% @O!MSG! '
+Q1-2000"L @O!NOMSG! '
+Q1-2030"L @I%Ding-a-ling-a-ling...% ETU2 0,1ET 7^T 7^T Q2ET Q2&1024"E -2W '
+ L @I%This terminal is alarmed!% @O!MSG! '
+Q1-2130"L @O!NOMSG! '
+Q1-2200"L @I%I am very tired.% L @I%Please let me sleep.% @O!MSG! '
+Q1-2350"L @O!NOMSG! '
+@I%It's almost midnight...%
+!MSG! J 6L 2R M3 !NOMSG!
+! Set the time of day		!
+@^U1% AM% Q1-1200"E @^U1% M% '
+Q1-1200"G Q1-1200U1 @^U1% PM% '
+Q1-100"L Q1+1200U1 '
+J 13L 2R Q3/256/2-5+(0^Q)< @I% % >
+Q1+10000\ 2R @I%:% 3R -D ::@FS%0% %"S R ' 5C G1
+! Find and set the date		!
+!NOTIME! J 10L Q3/256/2-11< @I% % >
+^B&31U1 ^B/32&15U2
+-1EJ-7"E ^B/32&31U1 ^B/32/32&15U2 '
+-1EJ-4"E ^B-((^B/1000)*1000)U1 1U2
+Q1-32"L @O!GOTDAY! '
+%2^[ -31%1-29"L @O!GOTDAY! '
+((^B/1000)+2)&3"E Q1-30"L @O!GOTDAY! | -1%1^[ ' '
+%2^[ -28%1-32"L @O!GOTDAY! '
+%2^[ -31%1-31"L @O!GOTDAY! '
+%2^[ -30%1-32"L @O!GOTDAY! '
+%2^[ -31%1-31"L @O!GOTDAY! '
+%2^[ -30%1-32"L @O!GOTDAY! '
+%2^[ -31%1-32"L @O!GOTDAY! '
+%2^[ -31%1-31"L @O!GOTDAY! '
+%2^[ -30%1-32"L @O!GOTDAY! '
+%2^[ -31%1-31"L @O!GOTDAY! '
+%2^[ -30%1^[ !GOTDAY! '
+-1%2"E @I%   January % @O!GOTMON! '
+-1%2"E @I%  February % @O!GOTMON! '
+-1%2"E @I%    March % @O!GOTMON! '
+-1%2"E @I%    April % @O!GOTMON! '
+-1%2"E @I%     May % @O!GOTMON! '
+-1%2"E @I%    June % @O!GOTMON! '
+-1%2"E @I%    July % @O!GOTMON! '
+-1%2"E @I%   August % @O!GOTMON! '
+-1%2"E @I%  September % @O!GOTMON! '
+-1%2"E @I%   October % @O!GOTMON! '
+-1%2"E @I%  November % @O!GOTMON! '
+@I%  December % !GOTMON! Q1\ @I%, %
+-1EJ-4"E ^B/1000+1970\ | -1EJ-7"E ^B&31+1972\ | ^B/32/16+1900\ ' '
+J 6L 2R M3 '
+! Initialize flags:		!
+!	No GTEDIT, VTEDIT, etc.	!
+0U1
+!	No LC if not MUNG	!
+0U2 J ::@S%MU%"U 4U2 '
+! Display command (if any)	!
+Q3"N J Q3&255L X1 :Q1"N
+J @I%Command: % G1 M3
+! Should we check out memory?	!
+J Q3&255L ::@S%TE%"S < 0A"A C > ' ::@S%^ES%^[
+.-Z"E [1 .U1 :@EG%MEM%"S G*
+Q1J ::@FS%$%%"S F| ' |
+Q1-Z"E :Q9"E -1EJ-5"E @EN%*.*% :@EN%%"S G*
+Q1J @S%[% Q1,.-1K @FS%.%]% Q1J @S%]% ZK ' '
+| G9 ' Q1J :@S%TECF^ED^ED.TMP%"U
+ZJ @I%TECF% 0EJ+100\ 3R D ZJ @I%.TMP%
+-1EJ-4"N -1EJ-7"N @I%;1/-CR% ' ' ' '
+Q1,ZX1 Q1,ZK EP EA EF
+:@ER%^EQ1%"S ZJ A L -1A-10"E -D '
+-1A-13"E -D ' ZK HX1 HK EC G1 '
+@ER%% @EW%% ' Q1J ]1
+.-Z"N Q1#32768U1 32@I%%
+:@S%/FI%"S Q1#8192U1 '
+J Q3&255L X1 J D @I%Old c%
+L @I%New command: % G1 M3 ' ' ' '
+! Take the display stuff away	!
+J Q3&255X1 Q3&255K '
+! The below not done if MUNG...	!
+J ::@S%MU%"U
+! Do LC defaulting, etc.	!
+M7"T Q2#4-4U2 '
+! ET$RFS => Load GTEDIT		!
+! Else ET$IAS => Load VTEDIT	!
+ET&(1024#512)"N
+ET&1024"N Q1#64U1 | Q1#1U1 ' '
+! ... end of not done if MUNG	!
+'
+! No LC => No LC		!
+ET&4"E Q2#4U2 '
+! Case flags => No LC		!
+EU+1"N Q2#4U2 '
+! /LC => LC (if possible...)	!
+J :@FS%/LC%%"S Q2#4-4U2
+ET&4"E Q3"N J G1 J 2L '
+ @I/%Lower case not available/ @O!NOLC! '
+EU+1"N Q3"N J G1 J 2L '
+ @I/%Lower case too dangerous/
+!NOLC! Q2#4U2 Q3"E ^YT ^YK 13^T 10^T |
+ M3 J Q3&255X1 Q3&255K ' ' '
+! /NOLC => No LC		!
+J :@FS%/NOLC%%"S Q2#4U2 '
+! /NS => No GTEDIT/VTEDIT	!
+J :@FS%/NS%%"S Q1#64#1-64-1U1 '
+! /NOSCO[P[E]] => Same as /NS	!
+J :@FS%/NOSCO%%"S ::@FS%P%%"S ::@FS%E%%^[ ' Q1#64#1-64-1U1 '
+! /SCROLL => No VTEDIT; scroll	!
+J :@S%/SC%"S ::@S%R%"S ::@S%O%"S ::@S%L%"S ::@S%L%^[ ' ' '
+ ::@S%:%"U @I%:% Q8\ ' Q1#128#1-1U1 '
+! Do exit value, VTEDIT default	!
+Q1M8U1
+! Check for VTEDIT formatter...	!
+Q1&1"N :Q2"N HX7 HK EP EA EF
+! Try naked formatter name	!
+:@ER%^EQ2%"U G2 @I%.TEC% J
+! Form library directory	!
+:@EG%LIB%"S G* ' ."E
+-1EJ-4"E @I%$% ' -1EJ-7"E @I%SY:% '
+-1EJ-5"E @I%SYS$LIBRARY:% ' ."E @I%LB:[1,2]% ' '
+! Try in the library directory	!
+HX2 :@ER%^EQ2%"U ."E HK ' 0K HX2
+! Try in the currect directory	!
+:Q2"N :@ER%^EQ2%"U 0,0X2 ' ' ' '
+! Load formatter into Q-reg M	!
+:Q2"N Y < ^E"T ZJ 12@I%% ' :A; >
+J ::@S%!%"S :@S%!%"S 1,.-1X2 ' '
+J 0@I%% HXM '
+! ... end of formatter check	!
+HK EC @ER%% @EW%% G7 ' '
+! Say what we have done		!
+Q3"N J G1 ET#Q2-Q2-ET"N J 3L
+Q2&4"N @I%Dis% | @I%En% ' @I%abling lower case% M3 '
+Q1&(64#1)"N J 4L @I%Loading G% Q1&1"N -D @I%V% ' @I%TEDIT macro%
+ :Q2"N @I% (% G2 @I%)% '
+ Q1&16"N @I%, SEEALL% ' Q1&32"N @I%, HOLD% ' M3 '
+J Q3&255X1 Q3&255K '
+! Clear specified bit(s) in ET	!
+Q2,0ET
+! Init command revision flag	!
+0U2
+! Set switch for BASIC-PLUS?	!
+J !NEXTBAS! :@S%.BAS%"S ::@S%]%"U ::@S%^ER%"U
+ < ::@S%;%; < ::@S%^ED%; > 0; >
+ < ::@S%<^ED%; < ::@S%^ED%; > ::@S%>%; 0; >
+ ::@S%\%"S -D -1U2 @O!NEXTBAS! '
+ ::@S%/B%"U ::@S%/^ED%"U G5 -1U2 Q1"L Q1#8192U1 ' ' ' ' ' @O!NEXTBAS! '
+! Set switch for BASIC-PLUS-2?	!
+J !NEXTB2S! :@S%.B2S%"S ::@S%]%"U ::@S%^ER%"U
+ < ::@S%;%; < ::@S%^ED%; > 0; >
+ < ::@S%<^ED%; < ::@S%^ED%; > ::@S%>%; 0; >
+ ::@S%\%"S -D -1U2 @O!NEXTB2S! '
+ ::@S%/B%"U ::@S%/^ED%"U G6 -1U2 Q1"L Q1#8192U1 ' ' ' ' ' @O!NEXTB2S! '
+! Set the last display		!
+Q3"N J G1
+! Set revised command		!
+Q2"T J Q3&255L X1 J :@S%C%"S 0K @I%Old c% '
+J 2L 2R 0K @I%New command: % G1 '
+! Do the last display		!
+J 6L 2R 0K M3 J Q3&255K '
+! Restore Q-regs and radix	!
+]3 ]2 Q2^X ]2 Q2ED M4 ]2 Q2^R ]2
+! Return the returned argument	!
+!EXIT! Q1#4096 ]1 ]4 ]5 ]6 ]7 ]8

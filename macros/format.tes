@@ -1,0 +1,75 @@
+ei
+
+
+	Formatting the first part of each line...
+
+
+! put the code to handle the first six spaces of the line into !
+! q-register A. !
+
+[a                                  ! save q-register a !
+@^ua/
+0a-9"e/27:^ua27:^ua@:^ua/'        ! if first char is a tab, return !
+0ua5<0a-9"e1;'c%a>                  ! count number of non-tab characters !
+qa-5"e                              ! if there's 5 non-tab characters !
+    0a-9"n                          ! if sixth char is not a tab !
+        0a-32"n                     ! and it's not a space !
+             di+                   ! make the continuation mark be + !
+             0a-32"e                ! if next char is space !
+                   d9i             ! make it a tab !
+                   |
+                   0a-9"n           ! if char after mark is not a tab !
+                       9i          ! insert a tab !
+                       '
+                   '
+             /27:^ua27:^ua@:^ua/  ! return !
+             '
+        '
+    '
+
+! if we made it to here, then it's not a continuation line, it doesn't start
+with a tab,  and the number of chars in the label field is in q-register A !
+
+! terminate the label field with a tab !
+
+0a-9"n               ! if it's not already a tab !
+    0a-32"ed'        ! if it's a space, delete it !
+    9i              ! insert a tab !
+    '
+qbj5<0a-32"n1;'d>          ! remove leading spaces !
+qbjs	5<r0a-32"n1;'d>       ! remove trailing spaces !
+/
+27:^ua
+
+27:^ua
+
+
+
+! Q-register A is loaded,  do the main loop !
+
+
+
+j
+<                                   ! for each line !
+0a-^^D"ec'                          ! if it starts with D, skip it !
+0a-^^d"ec'                          ! if it starts with d, skip it !
+.ub                                 ! save pointer to start of line !
+0a-13"n                             ! if it's not a blank line !
+     0a-^^C"n                       ! and it doesn't start with C !
+           0a-^^c"n                 ! and it doesn't start with c !
+                 0a-^^*"n           ! and it doesn't start with * !
+                       0a-^^!"n     ! and it doesn't start with excl. mark !
+                             ma     ! handle the first part !
+                             '
+                       '
+                 '
+           '
+     '
+s
+;                    ! move to the next line !
+.-z"e1;'                      ! if at end-of-buffer, leave the loop !
+>
+]a                            ! restore q-register a !
+
+
+

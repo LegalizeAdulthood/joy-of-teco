@@ -1,0 +1,101 @@
+Units of Editing
+
+  Editing pointer is always between characters
+  Characters are the fence sections and
+  pointer positions are always fence posts.
+
+	  F   o   o   B   a   r
+	|   |   |   |   |   |   |
+	0   1   2   3   4   5   6
+
+  Characters
+  Lines
+  Pages
+
+Specifying Files
+
+  ER<filespec>` - edit <filespec> for reading
+  EW<filespec>` - edit <filespec> for writing
+  EX - copy text buffer and remainder of input file to output file and exit
+
+Moving Input to Output
+
+  Y - clear buffer and yank the next page from the input
+  P - write buffer and yank the next page from the input
+ nP - perform P command n times
+
+Pointer Positioning Within a Page
+
+  J - move to the beginning of the buffer
+  L - move one line forward in the buffer
+ nL - move n lines forward (n > 0) or backward (n < 0) in the buffer
+  C - move forward one character in the buffer
+ nC - move n characters forward (n > 0) or backward (n < 0) in the buffer
+  R - move backward one characterin the buffer
+ nR - move n characters backward (n > 0) or forward (n < 0) in the buffer
+
+Type Out Commands
+
+  T - type from point to the end of the next line
+ nT - type n lines around the point
+ HT - type the entire buffer
+  V - type the current line -- equivalent to 0TT
+
+Text Modification Commands
+
+  I<text>` - insert <text>
+  K - delete from point to end of line
+ nK - delete n lines after (n > 0) or before (n < 0) point
+ HK - delete entire buffer
+  D - delete character after point
+ nD - delete n characters after (n > 0) or before (n < 0) point
+
+Search Commands
+
+  S<text>` - move point after next occurrence of <text> in buffer
+  N<text>` - move point after next occurrence of <text> across pages
+
+Flag Commands
+
+ ^E
+ ^X
+ ED
+ ES
+ ET
+ EU
+ EV
+
+Line Commands
+
+ FB
+ FC
+  K
+  T
+  X
+
+Command Arguments
+
+  n<CMD>   - single numeric argument, usually specifying a count
+  n,m<CMD> - two numeric arguments,
+	  usually specifying a range of positions in the buffer
+  <CMD>text<ESC> - single text argument
+  <CMD>text<ESC>other<ESC> - two text arguments
+  @<CMD><DELIM>text<DELIM> - single text argument with <DELIM> instead of <ESC>
+  :<CMD> - modifies behavior of <CMD>
+  n can be an expression:
+	+, -, /, * - add, subtract, divide, multiply
+	() - grouping
+	#, & - bitwise OR, bitwise AND
+
+Q-registers
+
+  Store an integer and a string.
+  Named A-Z and 0-9.
+  [q - push Q-register q onto stack
+  ]q - pop stack into Q-register q
+  [A ]B - copies Q-register A to Q-register B
+  nUq - store n in q.num
+  ^Utext` - store text in q.str 
+  Qq - retrieve q.num
+  *q - save last command in q.str
+

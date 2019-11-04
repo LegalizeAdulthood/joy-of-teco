@@ -1,0 +1,160 @@
+                     SQU.TEC - the TECO macro squisher
+
+     This macro will take a nice, readable TECO macro and squish it so
+     that  it  is  as small and as fast as possible (and is completely
+     unreadable).
+
+     You invoke SQU with the MUNG command.  SQU  then  enters  into  a
+     dialogue  with you as described below.  All questions contain the
+     allowed legal responses enclosed in parentheses and  the  default
+     you  get  if  you  just  type  RETURN  in angle brackets.  In the
+     discussion below the term "lexical"  refers  to  characters  that
+     TECO  would  have  interpreted  as TECO commands;  all characters
+     inside string arguments are not lexical characters.  For example,
+     the  ABC  of  SABC$  are not lexical characters while the S and $
+     are.  Similiarly, the ABC and DEF of @FS/ABC/DEF/ are not lexical
+     while the @, F, S, /'s, and $ are.
+
+               Delete CR/LF (Y/N) <N>?
+
+     A Y response will delete all lexical RETURNs and LINE FEEDs.   As
+     this  usually  results in one very long "line", an answer of N is
+     suggested (but, see the question below).
+
+               Set line lengths (Y for 70, N, or length) <N>?
+
+     This question is  asked  if  you  responded  N  to  the  previous
+     question.   If  a  positive response is given, SQU will initially
+     delete all lexical CR/LFs, then, as a  post-process,  insert  the
+     CR/LF  combination wherever it's needed so that no line is longer
+     than the length specified.  This neatly formats the squished TECO
+     macro.   The  most  commonly used length is 70 so a response of Y
+     results in a length of 70.
+
+               Delete blank lines (Y/N) <N>?
+
+     This question is asked only if you responded N  to  both  of  the
+     questions  above.   A Y answer results in all lexical blank lines
+     being deleted.
+
+               Delete lexical TABs and FORM FEEDs (Y/N) <N>?
+
+     Even though lexical TABs and FORM FEEDs have meaning to TECO (TAB
+     starts an insert, FORM FEED outputs a FORM FEED on the terminal),
+     some TECO macro writers use them simply  to  format  their  macro
+     code.   Of  course,  their macros won't correctly execute without
+     removing those lexical TABs and FFs.  A Y  response  will  delete
+     all  lexical TABs and FORM FEEDs.  If your macro runs unsquished,
+     you certainly want to answer N.
+
+               Delete comments (Y for SP/TAB, N, or set) <N>?
+
+     The trouble here is that both comments and labels (tags) use  the
+     same  construct.   To  be  able to differentiate between the two,
+     some sort of coding convention must be used.  SQU will check  the
+     character  immediately  following the "!" that starts the comment
+     or label.  If that character  matches  the  one  of  the  set  of
+     "comment  characters"  specified,  SQU will delete the construct.
+     Using a SPace or TAB immediately after  the  leading  exclamation
+     point  seems to be the most flexible for formatting comments so a
+     Y response results in the "comment character" set being SPace and
+     TAB.
+
+               Watch progress (Y/N) <N>?
+
+     If your terminal is supported by the W  (scope  watch)  commands,
+     this  question  will  be  asked.  At the cost of SQU running more
+     slowly, you can watch its progress.  Useful  for  debugging,  not
+     for production squishing...
+
+               Automatic mode (Y for %, N, or set) <N>?
+
+     This is the most confusing question.  The problem  here  is  that
+     SQU  normally  won't  touch  characters  inside  string  argument
+     strings, but the ^U command is frequently used to load TECO macro
+     code  into Q-registers and, of course, you wish that code to also
+     be  squished.   On  the  other  hand,  all  ^U  commands   aren't
+     necessarily  loading TECO macro code.  There are two forms of the
+     ^U command:  ^Uqxxx$ and @^Uq%xxx%.  The rule SQU  uses  is  that
+     any ^U command that is of the @^Uq%xxx% form and whose delimiting
+     character  is  a  member  of  the  "non-squishable  ^U   command"
+     character   set   shouldn't  be  sub-squished;   every  other  ^U
+     command's string argument is assumed to be TECO macro code and is
+     sub-squished.   The  convention we've adopted is that the quoting
+     character "%" is to be  used  for  textual  (i.e.,  non-code)  ^U
+     command   arguments.    Therefore,   a   Y   response   sets  the
+     "non-squishable ^U command" character set to %.   You  may  enter
+     any  set  of  character(s) you want.  An N response places you in
+     manual mode.  Whenever SQU  encounters  a  ^U  command,  it  will
+     pause,  ring the terminal's bell, and await a response.  A Y says
+     to go ahead and sub-squish the string arugment;  an  N  means  to
+     skip  it.   Obviously,  you  want  to  start  coding  your macros
+     according to some convention so that you don't need manual mode.
+
+               Allow adjacent ESCapes (Y/N) <N>?
+
+     The process of squishing a  macro  can  result  in  two  adjacent
+     ESCape characters where there wasn't before.  For example, if the
+     command @FS/ABC// was used, SQU will turn it  into  FSABC$$.   If
+     the  macro  will  be read via an ER command, yanked into the text
+     buffer, copied to  a  Q-register,  and  executed  this  poses  no
+     problems.   On  the  other  hand, if the macro is to be EI'd, the
+     adjacent ESCapes will trigger command execution prematurely.   An
+     N  response  will  direct  SQU to never generate adjacent ESCapes
+     where there wasn't before.
+
+               File <.TES or .TEC>?
+
+     SQU is now asking you for the file  specification  of  your  TECO
+     macro  and  indicating the it will default the extension to .TES,
+     or, if no file with a .TES extension exists, to .TEC.  After your
+     reply,  SQU  will  take  off and start squishing the macro.  When
+     it's done, it will simply return to TECO's * prompt.  You can now
+     write out the squished macro however you want.
+
+     If you invoke SQU as
+
+               MUNG SQU,filnam
+
+     it will enter its dialogue for the squishing  options,  but  will
+     start  squishing  immediately after asking about adjacent ESCapes
+     then return to the * prompt.
+
+     You can invoke SQU specifying all of  the  squishing  options  as
+     switches.  The switches are:
+
+               /D       Delete CR/LF
+               /L       Set line lengths
+               /B       Delete blank lines
+               /T       Delete lexical TAB/FFs
+               /C       Delete comments
+               /W       Watch progress
+               /A       Automatic mode
+               /E       Allow adjacent ESCapes
+
+     Each switch should be expressed as /x:y where "x" is  the  switch
+     and  "y"  is  either  Y  or N.  A non-standard line length can be
+     expressed as /L:nn where "nn"  is  some  non-zero  digit  string.
+     Non-standard  character  sets  can be specified for the /C and /A
+     switches, but the character set is limited to a single character.
+     For  example, /C:* sets the comment character set to "*" and /A:`
+     sets the non-squishable ^U command character set to "`".
+
+     You  can  also  supply  SQU  with  both  output  and  input  file
+     specifications.  For example:
+
+               MUNG SQU,outfil=infil
+
+     SQU will enter its dialogue for the squishing options, then  will
+     immediately  do  the  squishing,  write out the result, and exit.
+     The output file extension always defaults to .TEC.
+
+     If you have specified everything SQU needs  (an  input  file,  an
+     output  file, and all of the options as switches), it will do the
+     whole squishing operation and exit without further intervention.
+
+     Common SQU command lines are:
+
+     MUNG SQU,VTEDIT.TEC=VTEDIT.TES/D:N/L:Y/B:Y/T:N/C:Y/W:N/A:Y/E:N
+
+     MUNG SQU,TECO.INI=TECOIN.TES/D:N/L:Y/B:Y/T:N/C:Y/W:N/A:Y/E:Y

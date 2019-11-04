@@ -1,0 +1,55 @@
+Q1"E 2EJ"N :@EI/:TECKBM/"S -1U1 @O!EXIT! ' ' ' @EI//
+:@EG//^[
+HK
+[0
+10U0 0,0X0 [0 ^D
+EDU0 [0 0ED
+^XU0 [0 0^X
+EUU0 [0 -1EU
+ETU0 [0 ET#32768#256#128#32#16#8#1-32768-256-32-8-1ET
+[A [B [C [D [E [F [G [H [I [J [K [L [M [N [O [P [Q [R [S [T [U [V [W
+HK 90< @I/ / > HXA HK
+!LOOP!
+ET#16ET
+@^A/
+Teco
+
+
+/
+!LINE!
+0,0XB
+!COMMAND!
+HK
+-1*256+2UA 0UT 0UU -1UV 0UW :@EG/EMT/"F HK @O!DONE! '
+GB GA ^SC QRC ZK HXB
+Z"E @O!COMMAND! '
+ZJ -1AUA QA-10"N QA-12"N QA-27"N @O!COMMAND! ' ' '
+ZJ -D QA-10"E Z"N -1A-13"E -D ' ' '
+J ::@FS/^ES//^[
+Z"E @O!LINE! '
+J ::@FS/EX//"S ::@FS/I//"S ::@FS/T//^[ ' @^UC%RTS% @O!DOIT! '
+J ::@FS/R^ES//"S @I/$/ @^UC%RUN% @O!DOIT! '
+J ::@FS/RUN//"S @^UC%RUN% @O!DOIT! '
+J ::@FS/ED//"S ::@FS/I//"S ::@FS/T//^[ ' ::@FS/^ES//^[
+ Z"E @O!DONE! ' @I/TECO / @^UC%CCL% @O!DOIT! '
+J @^UC%CCL% -1UA 0"N !DOIT! 0UA '
+::@FS/^ES//^[ HXB HK :@EG/^EQC ^EQB/UC
+QC"S @O!LOOP! '
+QA"T QC"E HK GB J :@FS/^ES//"U ZJ ' 0,.XD
+ @I%/POS:30000=% GD .-Z"N @I/ / ' HXD HK
+ :@EG/RUN ^EQD/"S @O!LOOP! ' :@EG/RUN $^EQD/"S @O!LOOP! ' ' '
+@^A/
+?/ :GC @^A/ failure - "/ :GB @^A/"/
+QC"N 54UA 9*256UB :@EG/EMT/"S @^A/ - / ^^CUA
+ 14< @^UB%Q% QA:@^UB// MB&127UB QB"E 0; ' QB^T
+ MB/256&127UB QB"E 0; ' QB^T %A^[ > ' ' @^A/
+/ @O!LOOP!
+!DONE!
+]W ]V ]U ]T ]S ]R ]Q ]P ]O ]N ]M ]L ]K ]J ]I ]H ]G ]F ]E ]D ]C ]B ]A
+]0 Q0ET
+]0 Q0EU
+]0 Q0^X
+]0 Q0ED
+]0 EO-32"G Q0^R | Q0-10"N ^O ' '
+]0
+!EXIT! 

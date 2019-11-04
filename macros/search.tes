@@ -1,0 +1,118 @@
+! - - - - - - - - - - - - - - - - - - - - - - - !
+!		  SEARCH.TEC			!
+!	     !!SEARCH.TEC V39.00!!		!
+!						!
+!	 Last edit on  2-Jun-83 by MHB		!
+! - - - - - - - - - - - - - - - - - - - - - - - !
+!	 Invoked by:  MUNG SEARCH		!
+! - - - - - - - - - - - - - - - - - - - - - - - !
+! DIALOGUE:					!
+!						!
+!  Output <TT:.SRH>:  Output log file		!
+!      Input <.MAC>:  Input file spec(s)	!
+!		      (*.MAC if first time)	!
+!		      (.MAR if VAX/VMS)		!
+!         Lines <3>:  Number of lines to verify !
+! (Absolute) Search:  String to search for	!
+!           Replace:  Replace for found string	!
+!		      (if /CHA specified)	!
+!	Detach <No>:  Run detached?		!
+! - - - - - - - - - - - - - - - - - - - - - - - !
+! OPTIONAL SWITCHES:				!
+!						!
+!   Output<TT:.SRH>:				!
+!	/CHA	Change found string		!
+!	/MAT	Report only files with matches	!
+!		(No end list of no-match files)	!
+!	/ESC	ESCape is the only delimiter	!
+!		for Search and Replace strings	!
+!	/DIR	Compile a directory of the	!
+!		files now and use it to search	!
+!	/ABS	Exact case matches are required	!
+!		and TECO special search match	!
+!		characters must be entered as	!
+!		control characters (i.e., not	!
+!		with an uparrow)		!
+!						!
+!	Input<.MAC>:				!
+!	/ALL	List all file names in main	!
+!		part of log whether they were	!
+!		match or no-match		!
+!						!
+!	  Lines <3>:				!
+!	/x	Use "x" as the found string	!
+!		flag character instead of "~"	!
+! - - - - - - - - - - - - - - - - - - - - - - - !
+^D 4#2ED 0^X 4,128ET @EI%%
+@^U1/.U0 J Q3-^^-"N ^^*U3 72< Q3@I%% > @I%
+% G5 @I%
+% ' Q3@I%% Q3@I%% @I%Page % Q6\ 65+^S< Q3@I%% > ^^-U3 @I%
+% 0,.X7 0,.K Q0J -Q1L .,Q0:X7 J QF@I%% 0,.:X7 0,.K Q0J Q1+1L Q0,.:X7
+G7 ^YM9 ^YK Q0J/
+@^U2/+0U2 HX0 HK ET&512"N 0:W-4"E 0,1ET 27^T 1,0ET ^^<^T ' '
+!MAIN! EUU0 -1EU :G0 HT Q0EU !CHAR! ^TU0
+Q0-27"E 13^T 10^T @O%DONE% '
+Q2&2"E Q0-13"E ^T^[ @O%DONE% ' '
+Q0-21"E ZJ 0L ZK
+ !LINE! 13^T ET&512"N 0:W-6"N
+ 0,1ET 27^T 1,0ET 0:W-4"E ^^[^T ' ^^K^T 13^T
+ 0,1ET 27^T 1,0ET 0:W-4"E ^^[^T ' ^^A^T 13^T 10^T
+ ZJ 0L ."N EUU0 -1EU T Q0EU @O%CHAR% ' @O%MAIN% ' '
+ 10^T @O%MAIN% '
+Q0-127"E Z"N ZJ -1AU0 -D Q0-32"L
+ Q0-10"E ET&512"N 0:W-6"N 2< 0,1ET 27^T 1,0ET 0:W-4"E ^^[^T ' ^^A^T > 10^T @O%CHAR% ' ' '
+ @O!LINE! ' ET&2"E @O!LINE! ' 8^T 32^T 8^T ' @O%CHAR% '
+ZJ Q0@I%% @O%CHAR%
+!DONE!/
+@^US/US QS"N QS\ | @I%No% ' ^SC 5+^S< @I% % > ZJ @I% file% QS-1"N @I%s% '/
+
+! Output log file !
+
+HK @I%Output <TT:.SRH>: % M2
+J :@FS%/C%%U8 Q8"S ::@FS%H%%"S ::@FS%A%%^[ ' 8U7 | 0U7 '
+J :@FS%/A%%"S ::@FS%B%%"S ::@FS%S%%^[ ' Q7#1U7 '
+J :@FS%/E%%"S ::@FS%S%%"S ::@FS%C%%^[ ' Q7#2U7 '
+J :@FS%/M%%"S ::@FS%A%%"S ::@FS%T%%^[ ' Q7#4U7 '
+J :@FS%/D%%"S ::@FS%I%%"S ::@FS%R%%^[ ' Q7#8U7 '
+Z"N J -1EJ-5"E :@S%]%"U :@S%>%^[ ' ' :@S%.%"U ZJ @I%.SRH% ' ' HX9
+
+! Input file(s) !
+
+HK -1EJ-5"E @I%   Input <*.MAR>: % | @I%   Input <*.MAC>: % ' M2 Z"E @I%*% '
+< J -1EJ-5"E :@S%]%"U :@S%>%^[ ' ' :@S%.%"U ZJ @I%.MAC% -1EJ-5"E -D @I%R% ' '
+  J :@FS%/A%%"S ::@FS%L%%"S ::@FS%L%%^[ ' -1U5 | ^^*U5 '
+  HX5 @EN%^EQ5% [5
+  HK -1EJ-5"E @I%    Input <.MAR>: % | @I%    Input <.MAC>: % ' M2 -Z; >
+
+! Lines !
+
+0,4ET HK @I%       Lines <3>: % M2 ^^~UF J :@S%/^EX%"S -1AUF @FR%% '
+3U1 Z"N J \U1 ' @^U3/0UT 0UC 0,0XC 0UM 0U4 0,0X4
+< :]5; @EN%^EQ5% < :@EN%%; G* ^YX5 HK %T^[ Q5U3 / Q8"T
+:@^U3/EA :@EB%^EQ5%"U %C^[ 9@I%% G5 13@I%% 10@I%% H:XC @EW%% F< ' Y @EW%%/ |
+:@^U3/:@ER%^EQ5%"U %C^[ 9@I%% G5 13@I%% 10@I%% H:XC F< ' Y/ ' :@^U3/ 1U6 < /
+
+! Search [ and replacement ] string(s) !
+
+!SRH! HK Q7&1"N @I% Absolute search: % | @I%          Search: % ' Q7M2
+Z"N J G3 @I/ J < 0,Q7&1ED S/ ZJ 27@I// @I/; 1,0ED/
+Q8"T HX3 HK @I%         Replace: % Q7M2 J G3 @I/ FR/ ZJ 27@I// '
+@I/ M1 > 1,0ED/ HX3 @O%SRH% ' 4,0ET
+HK G3 ZJ @I/ -^E%6^[ ^N^_; / Q8"T @I/EA P @EW%%/ | @I/Y/ ' @I/ > /
+Q8"T @I/EA Q3-^^-"E EC %M^[ | EK ' @EW%% / '
+@I/HK G5 13@I%% 10@I%% J Q3-^^*"E %4^[ 9@I%%/ Q7&4"F @I/ H:X4/ ' @I/ '
+Q3+1"E 72< @I%*% > 13@I%% 10@I%% HM9 ' HK > >
+HK 72< @I%*% > 13@I%% 10@I%% 13@I%% 10@I%%
+QTMS @I% searched.% 13@I%% 10@I%%
+Q8"T QMMS @I% modified.% 13@I%% 10@I%% '
+QC"N QCMS @I% not found:% 13@I%% 10@I%% GC '
+Q4"N Q4MS @I% with no matches/ Q7&4"F @I/:/ | @I/./ ' @I/% 13@I%% 10@I%% G4 '
+HM9 EF HK/ HX3
+
+! Detach? !
+
+HK @I%     Detach <No>: % M2 :Q9"N @EW%^EQ9% @^U9/PW/ | @^U9/T/ '
+Z"N J 0A&(32^_)-89"E 0,64ET ' ' :@EG%%^[
+HK < :]5; Q7&8"N @EN%^EQ5% J < :@EN%%; Q5\ 10@I%% G* 10@I%% > |
+J Q5\ 10@I%% G5 10@I%% ' > < -Z; ZJ -D 0L ZX5 -L \U5 0L ZK [5 >
+HK Q7&1"N -1^X ' M3 EX 

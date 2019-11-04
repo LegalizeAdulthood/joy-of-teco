@@ -1,0 +1,23 @@
+!LOCAL.TEC V39.00! 5+5UL @^UL/[0 [1 [2 [3 [4 [5 [6 [7 [8 [9 +0U0 Q0"E QLU0 '
+10U3 ^D ^XU7 0^X EDU9 ED&4ED .U2 0U4 ZU5 Q0"L -Q0U0 @O!GO! '
+J < @S;.ENABLE;; ^YX9 [9 -D 6R 3@I;; >
+J < @S;.DISABLE;; ^YX9 [9 -D 5R D 2R 3@I;; 3@I;; >
+Q2J 0U1 !LSBBEG! -:@S;.^EX^EXABL^ESLSB;"S ^S+.U8 0L ::@S;^ES;^[ < ::@S;^C;; >
+.-Q8"N 0L @O!LSBBEG! ' Q8+1J .U4 ::@S;EN;"S -1U1 @O!GETEND! ' '
+Q2J !FNDBEG! -:@S;^EC:;"S .-2U6 0L ::@S;^ES;^[ 0A"D @O!FNDBEG! '
+!BEGSYM! .-Q6"L 0A"C C @O!BEGSYM! ' 0L @O!FNDBEG! ' Q4-."L .U4 ' '
+!GETEND! Q2J !LSBEND! :@S;.^EX^EXABL^ESLSB;"S ^S+.U8 0L ::@S;^ES;^[
+< ::@S;^C;; > .-Q8"N Q8+1J @O!LSBEND! ' Q8J .U5 Q1"T @O!GO! ' '
+Q1"T 7^T @^A;?Error, .ENABL LSB but no .DSABL LSB; 7^T @O!EXIT! '
+Q2-2U6 !FNDEND! Q6+2J :@S;^EC:;"S .-2U6 0L ::@S;^ES;^[ 0A"D @O!FNDEND! '
+!ENDSYM! .-Q6"L 0A"C C @O!ENDSYM! ' @O!FNDEND! ' .-Q5"L .U5 ' '
+!GO! 1@I;; ^YX8 ^YK 0U6 < Q4J @S;$:;; .-Q5; .-1U1 0L .,Q1X1
+\^[ C .-Q1"N Q1J -D G8 @O!DONT! ' Q4J %6^[
+< @S;^EQ1;; .-Q5; 0U1 .+^S"N ^S-1AU1 '
+Q1"C @O!NO! ' Q5-ZU5 ^SD Q0\ G8 Q5+ZU5 !NO! >
+QL%0^[ !DONT! > J < @FS;^EQ8;$;; > Q6"E 7^T @^A;%Warning, ; '
+Q6:= @^A; symbol; Q6-1"N @^A;s; ' @^A; reordered; !EXIT!
+J < @S;^C^C.DSABL;; ^YK ]9 G9 > J < @S;^C.ENABL;; ^YK ]9 G9 > @^A;
+; Q2-Z"G ZU2 ' Q2J EO-32"G Q3^R | Q3-10"N ^O ' ' Q7^X Q9ED ]9 ]8 ]7 ]6 ]5 ]4
+]3 ]2 ]1 ]0/ [0 10U0 ^D ET&128"E @^A;LOCAL.TEC loaded into Q-Reg L
+; ' EO-32"G Q0^R | Q0-10"N ^O ' ' ]0 @EI;; 

@@ -1,0 +1,22 @@
+! !!DATE.TES!! displays the current date and time       !
+! ^B == ((year-1900)*16+month)*32+day                   !
+! ^H == (seconds since midnight)/2                      !
+
+[0 [1 [2 [3 [4        ! save Q-reg's 0 through 4        !
+^B U0                 ! 0.num = current date            !
+(Q0/32) & 15  := 47^T ! display MM/                     !
+(Q0)    & 31  := 47^T ! display DD/                     !
+(Q0/512)+1900 := 32^T ! display YYYY<SP>                !
+^H*2 U0               ! 0.num = second's since midnight !
+Q0/3600 U1            ! 1.num = hours                   !
+Q1*3600 U4            ! 4.num = hours (in seconds)      !
+(Q0-Q4)/60 U2         ! 2.num = minutes into Q-reg 2    !
+(Q0-Q4)-(Q2*60) U3    ! 3.num = seconds into Q-reg 3    !
+Q1-10"< 48^T '        ! display leading zero?           !
+Q1:= 58^T             ! display HH:                     !
+Q2-10"< 48^T '        ! display leading zero?           !
+Q2:= 58^T             ! display MM:                     !
+Q3-10"< 48^T '        ! display leading zero?           !
+Q3=                   ! display SS<CR><LF>              !
+]4 ]3 ]2 ]1 ]0        ! restore Q-reg's 0 through 4     !
+

@@ -1,0 +1,1486 @@
+
+
+
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                VTEDIT
+
+
+             KEYPAD TEXT EDITOR AND CORRECTOR FOR TECO-11
+
+
+                            USER'S MANUAL
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     April 1985
+
+     VTEDIT  V39.00                                             Page 2
+
+
+     The information in this document is  subject  to  change  without
+     notice  and  should  not  be construed as a commitment by Digital
+     Equipment Corporation.
+
+     Digital Equipment Corporation assumes no responsibility  for  the
+     use or reliability of this document or the described software.
+
+
+
+        Copyright (C) 1979, 1985 Digital Equipment Corporation
+
+     VTEDIT  V03.00                                             Page 3
+
+
+     Introduction
+
+     The Video Terminal Editor (called VTEDIT) is  a  feature  of  the
+     TECO text editor which is available under RSTS/E, RT-11, RSX-11M,
+     IAS, and VAX/VMS.  VTEDIT allows you to see all  changes  to  the
+     text as you make them.
+
+     The Video Terminal Editor has two parts:
+
+        o The scope driver, which keeps the terminal  screen  updated,
+          is a part of the TECO run-time system (RSTS/E), the TECO.SAV
+          program (RT-11), the TEC.TSK task (RSX-11M and IAS), or  the
+          TEC.EXE image (VAX/VMS).
+
+        o The keyboard interface, which accepts your typed  input  and
+          either  inserts  it into the text buffer or interprets it as
+          an editing command, is a TECO macro called VTEDIT.TEC.
+
+     This document describes the scope driver and  the  VTEDIT  macro.
+     The  scope driver is a standard part of TECO.  However, VTEDIT is
+     just one of many possible keyboard interfaces.  Your installation
+     may  have  modified it, and therefore may have its own version of
+     the scope editing keyboard interface.
+
+
+     How to Read this Manual
+
+     The following conventions are used throughout this manual:
+
+        o A underlined dollar sign ($)  indicates  typing  the  ESCape                                    _
+          key,  or  the  ESCape  key  surrogate (usually accent grave,
+          "`"), if enabled.
+
+        o The notation 'CTRL/x' indicates a control  character,  which
+          you  enter  by  holding  down  the  CTRL  key and typing the
+          indicated character.
+
+        o Items in square brackets are optional.
+
+        o The letter 'n' indicates a numeric argument.   You  enter  a
+          numeric  argument  by  typing  $[-]  followed by a series of                                         _
+          digits.  The short sequence $- is equivalent  to  $-1.   The                                      _                     _
+          first  non-numeric  keystroke  you  type  after  entering  a
+          numeric argument should be an editing function  which  takes
+          an  argument.   Any other keystroke will cause the editor to
+          discard the number.  (It is  also  possible  for  a  numeric
+          argument to be an expression using standard operators.  This
+          is discussed later in the manual.) Unless otherwise  stated,
+          the editor uses a default value of 1 if you omit an optional
+          argument.
+
+        o The letter 'q' indicates any alphabetic Q-register name.  If
+          the  syntax of the editor requires a Q-register name and you
+          type  any  non-alphabetic  character,  VTEDIT   sounds   the
+          terminal bell and ignores the command.
+
+     VTEDIT  V03.00                                             Page 4
+
+
+     Invoking the Video Terminal Editor Macro
+
+     The Video Terminal Editor macro is stored in the file VTEDIT.TEC.
+     For  RSTS/E and VAX/VMS, the file is usually stored in the system
+     library (TECO$:  for RSTS/E, SYS$LIBRARY:  for  VAX/VMS).   Other
+     operating  systems  may  store VTEDIT.TEC elsewhere;  this manual
+     uses RSTS/E for its examples.  When you use the macro, it resides
+     in  Q-register  I  and uses all of the numeric Q-registers.  (The
+     macro saves these Q-registers when it starts  and  restores  them
+     when  it  exits, but they are unavailable from command mode while
+     the macro is  executing.)  To  load  Q-register  I  with  VTEDIT,
+     execute the following TECO command:
+
+                      EITECO$:VTEDIT$$                                    __
+
+     The message 'VTEDIT.TEC  loaded  into  Q-Reg  I'  is  printed  to
+     confirm the load.  Start the macro by typing the TECO command:
+
+                            MI$$                              __
+
+     These two commands cannot be in the same command  sequence.   You
+     must execute the EI command before you can execute Q-register I.
+
+     If you use the CCL commands TECO or MAKE to invoke TECO, you  can
+     automatically  load  and  start the VTEDIT macro by including the
+     following switch after the CCL command name:
+
+                            /VT
+
+     If you always  want  VTEDIT  included,  create  a  TECO  start-up
+     command  file  called  TECO.INI  in  your account.  This file can
+     contain any TECO commands, and  should  end  with  the  following
+     commands:
+
+                      ET&512"N 1+ ' 0
+
+     Then, whenever you use the TECO or MAKE CCL commands on  a  VT52,
+     VT100  series, or VT200 series terminal, TECO automatically loads
+     and starts VTEDIT.  To suppress  this  loading,  you  must  start
+     editing with the command:
+
+                       RUN TECO$:TECO
+
+     The model TECO.INI file included on the RSTS/E TECO  distribution
+     does  a  more advanced set of checks as well as implementing some
+     other random things (such as humorous messages based on the  time
+     of day).  Of course, experimentation is encouraged.
+
+
+     VTEDIT  V03.00                                             Page 5
+
+
+     Interpreting the Terminal Screen
+
+     While you are running  the  Video  Terminal  Editor  macro,  your
+     terminal  screen  displays  up  to 24 lines of the text in TECO's
+     text buffer.  This 'window' into your buffer always includes  the
+     current  line  (the  line  containing  the  text  pointer).   The
+     location of the text pointer within the buffer  is  indicated  by
+     the  terminal's  cursor.   All  characters  that  you type on the
+     keyboard that are not commands to VTEDIT are immediately inserted
+     into  the  text  buffer  at  the current pointer position and are
+     displayed on the screen.
+
+     Certain other special symbols can appear on the screen:
+
+        o A square  blob  (VT52)  or  'FF'  symbol  (VT100  or  VT200)
+          indicates  the  end  of  your text buffer and signifies that
+          there is an implicit form feed at the end of the buffer.
+
+        o A paragraph  symbol  (VT52)  or  diamond  (VT100  or  VT200)
+          indicates  the  end  of  your  text  buffer  if  there is no
+          implicit form feed there.
+
+        o A paragraph  symbol  (VT52)  or  diamond  (VT100  or  VT200)
+          immediately  following  one  of the buffer end symbols above
+          signifies that your input file is at end-of-file.
+
+        o A  down  arrow  (VT52)  or  'LF'  symbol  (VT100  or  VT200)
+          indicates  that  the  text  pointer  is positioned between a
+          carriage return and a line feed.  This symbol  appears  only
+          as  the  first  symbol  on a line, and it overlays the first
+          character of the line.  It allows you to tell the difference
+          between  the  text  pointer  being at the start of a line of
+          text and being just before the end of it.
+
+        o A right  arrow  (VT52)  or  'NL'  symbol  (VT100  or  VT200)
+          indicates  that  the current line of text is too long to fit
+          on the current line of the screen.  If TECO's truncate  flag
+          bit  (bit  8, value 256) is not set in the ET flag word (the
+          normal case), the remainder of the text appears on the  next
+          line  of  the  screen, preceded by the right arrow (VT52) or
+          'NL' (VT100 or VT200) and a space.  If the truncate flag  is
+          set  (via  the  TECO command ET#256ET), the remainder of the
+          text is not displayed, but the special symbol appears at the
+          end  of  the  line  to  remind you that there are characters
+          which cannot be displayed.  You can control  the  number  of
+          characters  that  appear  on  each  line by using the CTRL/V
+          command.
+
+     If you are using a VT100 or VT200 terminal in ANSI  mode,  VTEDIT
+     will  display  any  text between the current text pointer and the
+     marked buffer location (see the  Set  Mark  command)  in  reverse
+     video to highlight the marked region.
+
+     VTEDIT  V03.00                                             Page 6
+
+
+     A feature of the scope driver which allows you to view the  exact
+     contents  of  your  text  buffer  is called 'see-all' mode.  When
+     see-all mode is turned on,  all  special  characters  and  hidden
+     spacing are visible on the screen as special graphic symbols:
+
+          TAB       appears as a degree sign  (VT52)  or  'HT'  symbol
+                    (VT100  or  VT200).   The  spacing  after the tab,
+                    which is normally blank space on the  screen  that
+                    does not correspond to any characters in the text,
+                    is  shown  as  a  series  of  ellipses  (VT52)  or
+                    centered dots (VT100 or VT200).
+
+          LINE FEED not immediately preceeded by a RETURN appears as a
+                    down-arrow (VT52) or 'LF' symbol (VT100 or VT200).
+                    If the line feed is in the middle of the line, the
+                    blank  space  at the beginning of the next line is
+                    filled (as for TAB).
+
+                    A LINE FEED immediately  after  a  RETURN  is  not
+                    displayed  with  any  special  symbol  (see RETURN
+                    below).
+
+          RETURN    followed by a line feed appears as a  'CD'  symbol
+                    (VT52) or 'CR' symbol (VT100 or VT200).  Any blank
+                    space before the end of the line is thus visible.
+
+                    A RETURN causing an overprint line (i.e., a RETURN
+                    not  immediately  followed by a LINE FEED) appears
+                    as a five-slash (VT52)  or  not-equals  (VT100  or
+                    VT200).  The overprint characters are displayed on
+                    the  next  line  instead   of   over   (and   thus
+                    clobbering)  the original characters.  This allows
+                    full viewing of all characters in overprint lines.
+
+          FORM FEED appears as a square blob  (VT52)  or  'FF'  symbol
+                    (VT100 or VT200).  No extra blank lines are shown.
+                    If the form feed is in the middle of the line, the
+                    blank  space  at the beginning of the next line is
+                    filled.
+
+          VERTICAL TAB appears as  a  division  sign  (VT52)  or  'VT'
+                    symbol  (VT100  or VT200).  If the vertical tab is
+                    in the middle of the line, the blank space at  the
+                    beginning of the next line is filled.
+
+          ESCAPE    appears as a three-slash  (VT52)  or  a  Greek  pi
+                    (VT100  or  VT200) to distinguish it from a dollar
+                    sign.
+
+          CTRL/x    appears as a plus-or-minus sign  followed  by  the
+                    character  'x'  to  distinguish  it  from  a  real
+                    uparrow.
+
+
+     VTEDIT  V03.00                                             Page 7
+
+
+     Editing Text
+
+     In addition to allowing you to enter  text,  the  Video  Terminal
+     Editor macro has a large repertoire of powerful editing commands.
+     You request an editing function by using the auxiliary keypad  on
+     the terminal or by typing control characters or control sequences
+     on the standard keyboard.  Some functions  require  you  to  type
+     several keys.
+
+     When you start the Video Terminal  Editor  macro  with  the  TECO
+     command:
+
+                           -1MI$$                               __
+
+     it draws a keypad layout on the screen.  This is a summary of the
+     available  editing  functions.   You  can  redisplay  this keypad
+     layout by  using  the  ESCape  H  command  (see  the  section  on
+     Miscellaneous Commands).
+
+     The following sections describe the editing  functions  available
+     in  VTEDIT.   When  an editing function is equivalent to a simple
+     TECO  command,  the  equivalent   command   appears   after   the
+     description.   The macro sounds the terminal bell when it detects
+     an error (such as $!, which is an illegal sequence).                       _
+
+     VTEDIT  V03.00                                             Page 8
+
+
+                     Moving the Cursor
+
+
+          Command:  Set Mark
+
+          Syntax:   9         (keypad key)
+
+          Meaning:  Mark the current text buffer pointer position  for
+                    use with later commands (see individual commands).
+                    To move the mark, simply type the 9 key at the new
+                    position.   If you type the 9 key when the pointer
+                    is at the marked position, the mark is removed and
+                    the bell sounds.  Thus, to remove a mark, type the
+                    9 key until the bell rings.  The  mark  is  always
+                    removed when it is used.
+
+
+          Command:  Jump
+
+          Syntax:   [n]1      (keypad key)
+
+          Meaning:  Move the text pointer to position n.  If n is  not
+                    given  but  a  mark  is  set,  jump  to  the mark.
+                    Otherwise, jump  to  the  beginning  of  the  text
+                    buffer.
+
+          In TECO:  nJ
+
+
+          Command:  Jump to End of Buffer
+
+          Syntax:   2         (keypad key)
+
+          Meaning:  Move the text pointer  to  the  end  of  the  text
+                    buffer.
+
+          In TECO:  ZJ
+
+
+          Command:  Advance Line
+
+          Syntax:   [n]0      (keypad key)
+
+          Meaning:  Advance the text pointer by n lines, leaving it at
+                    the beginning of a line.
+
+          In TECO:  nL
+
+
+     VTEDIT  V03.00                                             Page 9
+
+
+          Command:  Back Line
+
+          Syntax:   [n]4      (keypad key)
+
+          Meaning:  Back up the text pointer by n lines, leaving it at
+                    the beginning of a line.
+
+          In TECO:  -nL
+
+
+          Command:  Start of Line
+
+          Syntax:   3         (keypad key)
+
+          Meaning:  Move the text pointer to the start of the  current
+                    line.
+
+          In TECO:  0L
+
+
+          Command:  End of Line
+
+          Syntax:   [n]BACKSPACE (special key or CTRL/H)
+
+          Meaning:  Move the text pointer to the end of the  nth  line
+                    from  the  current  line.  If n is not given or is
+                    equal to 1, move to the end of the  current  line.
+                    The  end  of  the  line  is just before a carriage
+                    return or form feed.
+
+          In TECO:  nL 2R
+
+
+          Command:  Advance Character
+
+          Syntax:   [n]>      (right arrow keypad key)                       -
+
+          Meaning:  Advance the text pointer by n characters.
+
+          In TECO:  nC
+
+
+          Command:  Back Character
+
+          Syntax:   [n]<      (left arrow keypad key)                       -
+
+          Meaning:  Back up the text pointer by n characters.
+
+          In TECO:  nR
+
+
+     VTEDIT  V03.00                                            Page 10
+
+
+          Command:  Down in Column
+
+          Syntax:   [n]v      (down arrow keypad key)                       |
+
+          Meaning:  Advance the text pointer by n lines, keeping it in
+                    the same column of the screen if possible.  Column
+                    position is determined by counting characters  and
+                    expanding  TABs.   If  the  target line is shorter
+                    than the position of the pointer at the start, the
+                    pointer  is  left  at the end of the line.  If the
+                    desired column in the target line is in the middle
+                    of  a  tab  stop,  the  pointer is left at the TAB
+                    character.  Repeatedly typing this key and the  up
+                    arrow   key   preserves  the  target  column,  and
+                    repositions to it when possible.
+
+
+          Command:  Up in Column
+
+          Syntax:   [n]^      (up arrow keypad key)                       |
+
+          Meaning:  Back up the text pointer by n lines, keeping it in
+                    the same column of the screen if possible.  Column
+                    position is determined by counting characters  and
+                    expanding  TABs.   If  the  target line is shorter
+                    than the position of the pointer at the start, the
+                    pointer  is  left  at the end of the line.  If the
+                    desired column in the target line is in the middle
+                    of  a  tab  stop,  the  pointer is left at the TAB
+                    character.  Repeatedly typing  this  key  and  the
+                    down  arrow  key  preserves the target column, and
+                    repositions to it when possible.
+
+
+          Command:  Advance Word
+
+          Syntax:   [n]CTRL/F
+
+          Meaning:  Advance the text pointer by n words, leaving it at
+                    the  first  character  of the nth word.  Words are
+                    normally delimited by sequences of  spaces,  tabs,
+                    commas, carriage returns, and line feeds.  See the
+                    section on selecting word delimiters.
+
+
+          Command:  Back Word
+
+          Syntax:   [n]CTRL/R
+
+          Meaning:  Back up the text pointer by n words, leaving it at
+                    the first character of the nth previous word.
+
+
+     VTEDIT  V03.00                                            Page 11
+
+
+          Command:  Advance or Back Continuously
+
+          Syntax:   $ followed by one of the six motion  commands  for                    _
+                    advance  or  back  by  line  (0 or 4 keypad keys),
+                    character (left or right arrow  keypad  keys),  or
+                    word (CTRL/F or CTRL/R)
+
+          Meaning:  Move the text pointer  continuously  by  one  unit
+                    (line,   character,   or  word)  in  the  selected
+                    direction,  updating  the  screen  each  time  the
+                    pointer  moves.  You can stop the motion by typing
+                    any non-keypad key.  The character typed  to  stop
+                    the  motion  is  otherwise  ignored.   Motion also
+                    stops (and the bell sounds) when the text  pointer
+                    reaches the beginning or end of the buffer.
+
+
+          Command:  Advance Screen Image
+
+          Syntax:   [n]$v     (ESCape, down arrow keypad key)                        |                       _
+
+          Meaning:  Advance the text pointer  the  correct  number  of
+                    lines  to  move  the  current  bottom  line of the
+                    screen to just off the top of  the  screen.   This
+                    allows  you  to  'page'  through  the text buffer.
+                    Overflow lines (lines too long for the screen) and
+                    overprint  lines  will cause slightly more or less
+                    than one screen's worth of data to be passed over.
+
+          In TECO:  24L
+
+
+          Command:  Back Screen Image
+
+          Syntax:   [n]$^     (ESCape, up arrow keypad key)                        |                       _
+
+          Meaning:  Back up the text pointer  the  correct  number  of
+                    lines  to  move the current top line of the screen
+                    to just off the bottom of the screen.  This allows
+                    you  to  'page' through the text buffer.  Overflow
+                    lines  (lines  too  long  for  the   screen)   and
+                    overprint  lines  will cause slightly more or less
+                    than one screen's worth of data to be passed over.
+
+          In TECO:  -24L
+
+
+     VTEDIT  V03.00                                            Page 12
+
+
+          Command:  Back Over Last Operation
+
+          Syntax:   $6        (ESCape, 6 keypad key)                    _
+
+          Meaning:  Back up the text pointer  the  correct  number  of
+                    characters  position  it  to where it was prior to
+                    the last operation.  For example, if you have just
+                    saved some text with the BLUE/PF1 keypad key, then
+                    this would re-position you to  the  start  of  the
+                    saved text.
+
+          In TECO:  ^SC
+
+     VTEDIT  V03.00                                            Page 13
+
+
+                       Searching Text
+
+
+          Command:  Set Search Argument and Search Text Buffer
+
+          Syntax:   [n]ENTER  (keypad key)
+
+          Meaning:  Get a search argument from the keyboard and search
+                    for  the  nth  occurence of it in the text buffer.
+                    When you type the ENTER key, VTEDIT erases the top
+                    two  lines  of  the  screen  and prompts you for a
+                    search  argument  with  'Buffer  search:'.    Your
+                    previous search argument (from any kind of search)
+                    is initially displayed following the  prompt.   If
+                    you  wish  to reuse your previous argument, simply
+                    type either the keypad  period  (.)  or  a  double
+                    ESCape.   To  edit your previous argument, type an
+                    initial RUBOUT.  This deletes the  last  character
+                    of  your  argument, but retains the rest as if you
+                    had just entered it.  Further editing and/or entry
+                    is  now done in the normal way.  Any other initial
+                    keystroke  erases  the  entire   previous   search
+                    argument;   you  may now proceed to enter your new
+                    argument.  The search argument may  be  any  valid
+                    TECO search construct.  Your search string appears
+                    on the screen as you type.  You can use RUBOUT  to
+                    edit  your  typing,  and  you  can  type CTRL/U to
+                    abandon the entry of the search string, abort  the
+                    search command, and clean up the screen.  When you
+                    are ready to perform the search, type  either  the
+                    keypad  period  (.)  or  a  double ESCape.  VTEDIT
+                    cleans up the screen, saves the  search  argument,
+                    and  positions the pointer after the nth occurence
+                    of the string within the text  buffer.   If  n  is
+                    negative,  the  search  is  done  backwards in the
+                    buffer.  If the string is found and  there  is  no
+                    active  mark  set,  the  found  string is shown in
+                    reverse video (on those terminals that support it)
+                    until  the  next  keystroke.  If the string is not
+                    found, VTEDIT moves the pointer to  the  start  of
+                    the text buffer and sounds the bell.
+
+          In TECO:  n:Stext$                           _
+
+
+          Command:  Set Search Argument and Search through File
+
+          Syntax:   [n]CTRL/N
+
+          Meaning:  This command is similar to the previous  one,  but
+                    performs  a through the whole file search.  If you
+                    do not have an open output file, the terminal bell
+                    rings  and  the command is ignored.  The prompt is
+                    'File search:'.  During the  file  searching,  the
+                    cursor  is  positioned in the upper left corner of
+
+     VTEDIT  V03.00                                            Page 14
+
+
+                    the screen.  If the nth occurance  is  not  found,
+                    the bell sounds (the text buffer will be empty).
+
+          In TECO:  n:Ntext$                           _
+
+
+          Command:  Set Search Argument and Destructively Search File
+
+          Syntax:   [n]$CTRL/N                       _
+
+          Meaning:  This command is similiar to the previous one,  but
+                    doesn't  output  passed over text.  If you have an
+                    open output file  and  destructive  mode  (bit  1,
+                    value  2)  in  the TECO edit mode flag (ED) is not
+                    set, the terminal bell rings and  the  command  is
+                    ignored.    The   prompt   is   'Destructive  file
+                    search:'.  During the file searching,  the  cursor
+                    is  positioned  in  the  upper  left corner of the
+                    screen.  If the nth occurance is  not  found,  the
+                    bell sounds (the text buffer will be empty).
+
+          In TECO:  n:_text$                           _
+
+
+          Command:  Search Again
+
+          Syntax:   [n].      (keypad key)
+
+          Meaning:  Search in the text buffer for the nth occurence of
+                    the  search argument which was most recently saved
+                    via any search command.  If  n  is  negative,  the
+                    search  is  done  backwards in the buffer.  If you
+                    have  not  yet  used  the  ENTER  command,  VTEDIT
+                    searches for the string you most recently searched
+                    for from TECO before you started VTEDIT.   If  the
+                    string  is  not found, VTEDIT moves the pointer to
+                    the start of the text buffer and sounds the bell.
+
+     VTEDIT  V03.00                                            Page 15
+
+
+                       Deleting Text
+
+
+          Command:  Rub Out Character
+
+          Syntax:   [n]DEL
+
+          Meaning:  Delete  n  characters  before  the  text  pointer,
+                    starting with the character before the cursor.
+
+          In TECO:  -nD
+
+
+          Command:  Delete Character
+
+          Syntax:   [n]5      (keypad key)
+
+          Meaning:  Delete n characters, starting with  the  character
+                    under the cursor.
+
+          In TECO:  nD
+
+
+          Command:  Rub Out Word
+
+          Syntax:   [n]CTRL/B
+
+          Meaning:  Delete the text  between  the  start  of  the  nth
+                    previous word and the current text pointer.
+
+
+          Command:  Delete Word
+
+          Syntax:   [n]$CTRL/B                       _
+
+          Meaning:  Delete the text between the current  text  pointer
+                    and  the  start  of  the  n+1st  word  beyond  the
+                    pointer.
+
+
+          Command:  Rub Out Line
+
+          Syntax:   CTRL/U
+
+          Meaning:  Delete the text between the start of  the  current
+                    line and the text pointer.
+
+          In TECO:  0K
+
+
+     VTEDIT  V03.00                                            Page 16
+
+
+          Command:  Delete Line
+
+          Syntax:   [n]CTRL/K
+
+          Meaning:  Delete n lines of text, starting  at  the  current
+                    text pointer (the character under the cursor).  If
+                    n is not given but a mark is set, delete the  text
+                    between  the  mark  and  the current text pointer.
+                    Otherwise, delete one line.
+
+          In TECO:  nK
+
+
+          Command:  Delete Rest of Line
+
+          Syntax:   [n]CTRL/D
+
+          Meaning:  Delete the text between the current  text  pointer
+                    and the end of the nth line from the pointer.  The
+                    carriage return and line feed at the  end  of  the
+                    nth line (if any) are not deleted.
+
+          In TECO:  nK 13I$ 10I$ 2R                          _    _
+
+
+          Command:  Delete or Restore Text
+
+          Syntax:   6         (keypad key)
+
+          Meaning:  If the previous keystroke was  a  VTEDIT  deletion
+                    command,  restore  the deleted text and return the
+                    buffer pointer to its former position.  Otherwise,
+                    delete  the  spanned text block.  The spanned text
+                    is the text most recently located or  inserted  in
+                    the  text buffer via a Cut, Paste, Search, Get, or
+                    Exchange command, or by a restoring 6.
+
+          In TECO:  .+^S,.K
+
+     VTEDIT  V03.00                                            Page 17
+
+
+                 Inserting and Moving Text
+
+
+          Command:  Open Line
+
+          Syntax:   [n]7      (keypad key)
+
+          Meaning:  Insert n  return/line  feed  sequences  after  the
+                    current  text pointer.  The effect of this command
+                    is to move the rest of the  text  on  the  current
+                    line down to a new line.
+
+          In TECO:  n<13I$ 10I$> 2*nR                         _    _
+
+
+          Command:  Get Q-register Contents
+
+          Syntax:   CTRL/Gq
+
+          Meaning:  Insert the contents of Q-register q  in  the  text
+                    buffer.   In this command, q can be any alphabetic
+                    or numeric Q-register name, or it can be either of
+                    the  special  names '*' (file name buffer) and '_'
+                    (search string buffer).
+
+          In TECO:  Gq
+
+
+          Command:  Load Q-register
+
+          Syntax:   [n]CTRL/X[:]q
+
+          Meaning:  Copy n lines from the text buffer into  Q-register
+                    q.   If  n  is  not given and there is a mark set,
+                    copy the text between the  mark  and  the  current
+                    text  pointer.   Otherwise, copy one line.  VTEDIT
+                    moves the text pointer to the end  of  the  copied
+                    text.  If the colon is present, append the text to
+                    the Q-register instead of copying it.  You can not
+                    specify Q-register I.
+
+                    NOTE:   If  you  are  using  VAX/VMS,  CTRL/X   is
+                    intercepted  by the terminal service as cancel all
+                    type ahead.  You can use a combination  of  CTRL/T
+                    and CTRL/G to cut and restore text to Q-registers.
+
+          In TECO:  nXq
+
+
+     VTEDIT  V03.00                                            Page 18
+
+
+          Command:  Load Q-register and Delete Text
+
+          Syntax:   [n]CTRL/T[:]q
+
+          Meaning:  Similar to CTRL/X, but delete the copied text.
+
+
+          Command:  Save Text
+
+          Syntax:   [n]BLUE   (VT52 keypad key)
+                    [n]PF1    (VT100 or VT200 keypad key)
+
+          Meaning:  Copy n lines from the text buffer into the  VTEDIT
+                    cut buffer.  If n is not given and there is a mark
+                    set, copy  the  text  between  the  mark  and  the
+                    current  text  pointer.  Otherwise, copy one line.
+                    VTEDIT moves the text pointer to the  end  of  the
+                    copied  text.  If you repeatedly type the BLUE key
+                    with no  intervening  keystrokes,  VTEDIT  appends
+                    successive  lines  of text to the cut buffer.  You
+                    can delete the text which was cut by typing the  6
+                    keypad key.
+
+
+          Command:  Paste Text
+
+          Syntax:   GREY      (VT52 keypad key)
+                    PF3       (VT100 or VT200 keypad key)
+
+          Meaning:  Insert the contents of the  cut  buffer  into  the
+                    text buffer.
+
+
+          Command:  Insert ASCII Value
+
+          Syntax:   [n]CTRL/\
+
+          Meaning:  Accept a character from the  terminal  and  insert
+                    into  the  text buffer the string representing the
+                    ASCII value of that character.  If n  is  present,
+                    insert the string representing n and do not accept
+                    an extra character.   VTEDIT  inserts  the  number
+                    using  the radix that was set when you started the
+                    macro.  You can change this radix by  executing  a
+                    TECO  command  with  the  RED/PF2  key  or  CTRL/E
+                    function.
+
+          In TECO:  ^^x\ (where x is the next character you type)
+
+
+     VTEDIT  V03.00                                            Page 19
+
+
+          Command:  Insert Special Character
+
+          Syntax:   n9        (keypad key)
+
+          Meaning:  Insert into the text buffer  the  character  whose
+                    ASCII value is n.
+
+          In TECO:  nI$                      _
+
+     VTEDIT  V03.00                                            Page 20
+
+
+              Advancing through the Input File
+
+
+          Command:  Advance Page
+
+          Syntax:   [n]8      (keypad key)
+
+          Meaning:  Go forward n pages in the  file(s)  being  edited.
+                    If  you  do  not  have  an  open  output file, the
+                    terminal bell sounds and the command is ignored.
+
+          In TECO:  nP
+
+
+          Command:  Append Page or Line
+
+          Syntax:   [n]CTRL/A
+
+          Meaning:  Append the next n pages from the input file to the
+                    current  text  buffer.  If n is 0, append only one
+                    line from the  file.   If  n  is  negative  (e.g.,
+                    $-CTRL/A),  keep  appending  pages  from the input                    _
+                    file until end-of-file.  If there are  form  feeds
+                    separating  the  text  in the file, VTEDIT inserts
+                    form feeds in the text buffer.
+
+          In TECO:  n< ^E"T 12I$ ' A >                               _
+
+
+          Command:  Append Page or Line with no Form Feeds
+
+          Syntax:   [n]$CTRL/A                       _
+
+          Meaning:  Append the next n pages from the input file to the
+                    current  text  buffer,  discarding  any form feeds
+                    that appear in the input file.  If n  is  negative
+                    (e.g.,  $-$CTRL/A),  keep appending pages from the                            _ _
+                    input file until end-of-file.  If n is  0,  append
+                    only one line from the file.
+
+          In TECO:  n< A >
+
+
+          Command:  Yank Page
+
+          Syntax:   [n]CTRL/Y
+                    [n]$Y                       _
+
+          Meaning:  Yank n pages, leaving the nth  page  in  the  text
+                    buffer.   If  you  have  an  open  output file and
+                    destructive mode (bit 1, value 2) in  TECO's  edit
+                    mode flag (ED) is not set, the terminal bell rings
+                    and the command is ignored.
+
+                    NOTE:   If  you  are  using  VAX/VMS,  CTRL/Y   is
+
+     VTEDIT  V03.00                                            Page 21
+
+
+                    intercepted  by  the  terminal  service  as  abort
+                    image.  You must use $Y to yank page(s).                                         _
+
+          In TECO:  n< Y >
+
+
+          Command:  Inhibit Yank Protection
+
+          Syntax:   $-CTRL/Y                    _
+                    $-$Y                    _ _
+
+          Meaning:  This command inhibits yank  protection;   it  sets
+                    destructive  mode  (bit 1, value 2) in TECO's edit
+                    mode flag (ED).
+
+          In TECO:  0,2ED
+
+
+          Command:  Enable Yank Protection
+
+          Syntax:   $0CTRL/Y                    _
+                    $0$Y                    _ _
+
+          Meaning:  This command enables yank protection;   it  clears
+                    destructive  mode  (bit 1, value 2) in TECO's edit
+                    mode flag (ED).
+
+          In TECO:  2,0ED
+
+     VTEDIT  V03.00                                            Page 22
+
+
+                  Executing TECO commands
+
+
+          Command:  Execute Q-register Macro
+
+          Syntax:   [n]CTRL/Eq
+
+          Meaning:  Execute the  macro  in  Q-register  q.   If  n  is
+                    present,  use  its  value  as  an  argument to the
+                    macro;   if  not,  execute  the  macro   with   no
+                    argument.  VTEDIT moves the cursor to the top left
+                    corner of the screen  while  the  macro  is  being
+                    executed.
+
+          In TECO:  nMq or Mq
+
+
+          Command:  Repeat Q-register Macro
+
+          Syntax:   [n]$CTRL/Eq                       _
+
+          Meaning:  Execute the macro in Q-register q in an  iteration
+                    loop.  If the value of n is zero, the iteration is
+                    infinite.  Otherwise, n is the iteration count for
+                    the  loop.  If n is not given, this command is the
+                    same as CTRL/Eq.
+
+          In TECO:  n< Mq > or < Mq >
+
+
+          Command:  Set TECO Command and Execute
+
+          Syntax:   [n]RED    (VT52 keypad key)
+                    [n]PF2    (VT100 or VT200 keypad key)
+
+          Meaning:  Get a TECO command from the keyboard  and  execute
+                    it.   When you type the RED/PF2 keypad key, VTEDIT
+                    erases the top two lines of the screen and prompts
+                    you  for  a command.  Your previous command string
+                    is initially displayed  following  the  'Command:'
+                    prompt.   If  you  wish  to  reuse  your  previous
+                    command, simply type either the keypad period  (.)
+                    or   a  double  ESCape.   To  edit  your  previous
+                    command, type an initial RUBOUT.  This deletes the
+                    last  character  of  your command, but retains the
+                    rest as if  you  had  just  entered  it.   Further
+                    editing  and/or  entry  is  now done in the normal
+                    way.   Any  other  initial  keystroke  erases  the
+                    entire  previous  command  string;   you  may  now
+                    proceed to enter your new command.  You may  enter
+                    any  valid  TECO  command  string.   Your  command
+                    string appears on the screen as you type.  You can
+                    use  RUBOUT  to edit your typing, and you can type
+                    CTRL/U to abandon the entry of the command, bypass
+                    command  execution, and clean up the screen.  When
+
+     VTEDIT  V03.00                                            Page 23
+
+
+                    you are ready to execute  the  command,  type  the
+                    keypad  period  (.)  or  a  double ESCape.  VTEDIT
+                    cleans up the screen, saves  the  command  string,
+                    and executes the command.  VTEDIT moves the cursor
+                    to the top left corner of  the  screen  while  the
+                    command is being executed.
+
+                    If n is present, its value is used as an  argument
+                    to the TECO command string.
+
+          In TECO:  ^U9command$ nM9                              _
+                    ^U9command$ M9                              _
+
+                    NOTE:  VTEDIT truely stores the  TECO  command  in
+                    Q-register  9.  A subsequent CTRL/G 9 command will
+                    insert the command into the text buffer.  To  save
+                    the  command in an alphabetic Q-register for later
+                    usage,  You  can  use  the   following   keystroke
+                    sequence:
+
+                    9         Keypad key 9 to set a mark
+                    CTRL/G 9  Get TECO command from Q-register 9
+                    CTRL/T q  Take command away to Q-register q
+
+
+          Command:  Re-execute TECO Command
+
+          Syntax:   [n]$$                       __
+
+          Meaning:  Execute the TECO command most  recently  set  with
+                    the  RED/PF2  keypad key.  VTEDIT moves the cursor
+                    to the top left corner of  the  screen  while  the
+                    command is being executed.
+
+                    If n is present, its value is used as an  argument
+                    to the TECO command.
+
+
+          Command:  Set TECO Command and Repeat Execution
+
+          Syntax:   [n]$RED   (VT52 keypad key)                       _
+                    [n]$PF2   (VT100 or VT200 keypad key)                       _
+
+          Meaning:  A TECO command is gotten from  the  keyboard  just
+                    like  the  RED/PF2  command.  If n is present, the
+                    TECO command is executed n times.  Else  the  TECO
+                    command is executed in an infinite iteration.
+
+          In TECO:  ^U9command$ n< M9 >                              _
+                    ^U9command$ < M9 >                              _
+
+
+     VTEDIT  V03.00                                            Page 24
+
+
+          Command:  Start/End Learning Mode
+
+          Syntax:   $L                    _
+
+          Meaning:  VTEDIT can 'learn'  a  series  of  keystrokes  and
+                    (re-)execute  them  upon  request.   An initial $L                                                                    _
+                    puts VTEDIT into learning mode.  Every  subsequent
+                    keystroke is remembered by VTEDIT until another $L                                                                    _
+                    is typed.  To cancel  a  learned  sequence  or  to
+                    ensure  that you are out of learning mode, type $L                                                                    _
+                    until the terminal bell sounds.  The bell  signals
+                    that  the  null learning sequence (i.e., $L$L) has                                                             _ _
+                    been entered.
+
+
+          Command:  Execute Learned Sequence
+
+          Syntax:   [n]$X                       _
+
+          Meaning:  This command causes  VTEDIT  to  (re-)execute  the
+                    previously  learned keystroke sequence.  If you do
+                    not have any  learning  sequence  remembered,  the
+                    terminal   bell   rings.    The  optional  numeric
+                    argument is the number of  times  to  execute  the
+                    learned keystroke sequence.
+
+     VTEDIT  V03.00                                            Page 25
+
+
+               Controlling the Video Terminal
+
+
+          Command:  Repaint Screen
+
+          Syntax:   CTRL/W
+
+          Meaning:  Repaint the screen.  This command is useful if the
+                    display  on the screen is destroyed by a broadcast
+                    from  the  system  manager.   This  command   also
+                    restores   special  keypad  mode  on  the  editing
+                    keypad, and  can  be  used  if  the  terminal  was
+                    powered down.
+
+                    VTEDIT requests your terminal to send its terminal
+                    id   as   part   of  this  command.   You  should,
+                    therefore,   wait   until   the    screen    stops
+                    updating/flickering  before  further  typing.   As
+                    part of the screen repaint,  a  series  of  ESCape
+                    sequences are sent to the terminal.  On VT52's and
+                    VT100's or VT200's in VT52  mode,  the  characters
+                    "?2l"  will appear briefly on the screen.  This is
+                    normal  and  is  part  of  the  necessary   ESCape
+                    sequences.
+
+
+          Command:  Set Cursor Line
+
+          Syntax:   nCTRL/W
+
+          Meaning:  The cursor line is set to  n.   The  scope  driver
+                    will try to keep the cursor on the nth line of the
+                    screen.  The initial value of this cursor line  is
+                    2/3rd's of the way down the screen (16 for 24 line
+                    screens).
+
+                    An effective  CTRL/W  command  is  executed  after
+                    setting  the  cursor  line;  please read the notes
+                    above.
+
+
+          Command:  Toggle See-all Display Mode
+
+          Syntax:   CTRL/V
+
+          Meaning:  This command turns on  the  scope  driver  see-all
+                    mode, or turns it off if it is currently on.
+
+
+     VTEDIT  V03.00                                            Page 26
+
+
+          Command:  Set Terminal Characteristics
+
+          Syntax:   nCTRL/V
+
+          Meaning:  Change  the   display   characteristics   of   the
+                    terminal.   VTEDIT  requests your terminal to send
+                    its terminal id as  part  of  this  command.   You
+                    should,  therefore,  wait  until  the screen stops
+                    updating/flickering before further typing.  If you
+                    have     selected     some     illegal    terminal
+                    characteristic,  VTEDIT  should   catch   it   and
+                    automatically establish something that will work.
+
+                    If n has the  value  0,  VTEDIT  tells  the  scope
+                    driver  that  your  terminal  is a VT52.  Use this
+                    command only if TECO made a wrong  guess  when  it
+                    started  (which shouldn't happen) or if you detach
+                    and  change  terminal  types  during  an   editing
+                    session.  The value 2 means that the terminal is a
+                    VT100 or VT200, but should be controlled  in  VT52
+                    compatibility  mode.   The  value 4 means that the
+                    terminal  is  a  VT100  or  VT200  and  should  be
+                    controlled  with  ANSI  standard escape sequences.
+                    This is the optimal setting  for  VT100  or  VT200
+                    terminals, and must be used if you want to display
+                    132 columns or to display  the  marked  region  in
+                    reverse  video.   When you change modes on a VT100
+                    or VT200,  the  VTEDIT  sends  the  proper  escape
+                    sequence to the terminal to change its operation.
+
+                    If n has an even value from 10 to 132, that  value
+                    is  used  as  the  new width for the display.  You
+                    must be in VT100 or VT200 ANSI mode to set a width
+                    greater  than  80.   You  can set a width narrower
+                    than terminal can display.  Setting a width  wider
+                    than   your   terminal   can   handle   may  cause
+                    unpredicatble results.  Note that the scope driver
+                    reserves the last two characters of each line, and
+                    therefore can display only n-2 characters  if  the
+                    width  is  set  to  n.   The  default  width is 80
+                    characters when you start VTEDIT.
+
+                    If n has a negative value from 10 to 24,  it  sets
+                    the  height  of  the  display.  You should not use
+                    this command, unless you have a VT100 or VT200  in
+                    ANSI  mode  which has the capability to change the
+                    hardware scrolling region.
+
+
+     VTEDIT  V03.00                                            Page 27
+
+
+          Command:  Enter/Exit Screen Holding Mode
+
+          Syntax:   [n]$CTRL/V                       _
+
+          Meaning:  This command toggles "holding  screen"  mode.   In
+                    normal mode (the default), VTEDIT attempts to keep
+                    the cursor positioned on the line specified by the
+                    nCTRL/W command.  Any advance or back line command
+                    will scroll the screen one line thus  keeping  the
+                    cursor  in  the  same  physical  location  on  the
+                    screen.  In holding screen mode, VTEDIT will  only
+                    scroll  the  screen when the cursor position would
+                    have been off the screen.  For example, an advance
+                    line  from  the  last line on the screen or a back
+                    line from the top line on the  screen  will  cause
+                    the   screen  to  scroll  and  the  cursor  to  be
+                    positioned  at  its  default  location,  the  line
+                    specified  by  nCTRL/W.   This  mode is useful for
+                    terminals without reverse  scrolling  capabilities
+                    and/or    for   operation   over   a   low   speed
+                    communication lines.
+
+                    If n is present  and  has  the  value  0,  holding
+                    screen  mode  is unconditionally turned off;  if n
+                    is -1,  holding  screen  mode  is  unconditionally
+                    turned on.
+
+                    If n is positive, holding screen mode is turned on
+                    with  the cursor limit set to n.  VTEDIT will only
+                    scroll the screen if  the  cursor  position  would
+                    have  been within the top or bottom n lines on the
+                    screen.
+
+     VTEDIT  V03.00                                            Page 28
+
+
+                 Selecting Word Delimiters
+
+     Several of the VTEDIT editing commands use the idea of  a  'word'
+     in  the  text buffer.  Normally, words are delimited by sequences
+     of spaces, tabs, commas, carriage returns, and  line  feeds.   If
+     you  have  a  special  editing  application,  you  may  require a
+     different definition of a word.  The following commands allow you
+     to change that definition.
+
+
+          Command:  Use Standard Words
+
+          Syntax:   $T                    _
+
+          Meaning:  Restore the set of word delimiters to the standard
+                    set:   space,  tab,  comma,  carriage return, line
+                    feed.
+
+
+          Command:  Use BASIC-PLUS Words
+
+          Syntax:   $0$T                    _ _
+
+          Meaning:  Use a  set  of  word  delimiters  appropriate  for
+                    editing BASIC-PLUS code.  This command appends the
+                    following special characters to the  set  of  word
+                    delimiters:
+
+                    ( ) + - * ^ \ ! = : < > /
+
+
+          Command:  Clear Delimiter Set
+
+          Syntax:   $-$T                    _ _
+
+          Meaning:  Clear out the word delimiter set.  You must follow
+                    this command by adding one or more word delimiters
+                    (see below).
+
+
+          Command:  Add Word Delimiter
+
+          Syntax:   n$T                     _
+
+          Meaning:  Add the character whose ASCII value is  n  to  the
+                    set  of  word  delimiters.  The value of n must be
+                    between 1 and 127.
+
+
+     VTEDIT  V03.00                                            Page 29
+
+
+          Command:  Get Next Word
+
+          Syntax:   [n]$N                       _
+
+          Meaning:  Move the next n words to the current line.   If  n
+                    is  positive, the cursor should be at the end of a
+                    line;  the first n words of the next  line(s)  are
+                    moved  to  the  end  of the current line.  If n is
+                    negative, the cursor should be at the beginning of
+                    a  line;  the last n words of the previous line(s)
+                    are moved to the beginning of the current line.
+
+     VTEDIT  V03.00                                            Page 30
+
+
+                          Exiting
+
+
+          Command:  Exit from VTEDIT
+
+          Syntax:   CTRL/Z or CTRL/C
+
+          Meaning:  Exit from  the  Video  Terminal  Editor  macro  to
+                    TECO's asterisk prompt.
+
+
+          Command:  Exit from TECO
+
+          Syntax:   $CTRL/Z                    _
+
+          Meaning:  Exit from the Video Terminal Editor macro and from
+                    TECO,  copying  the  input file to the output file
+                    and closing both files.  This  command  turns  off
+                    special  keypad  mode  and moves the cursor to the
+                    bottom of the screen.
+
+          In TECO:  EX
+
+
+          Command:  Exit from TECO Without Preserving Output
+
+          Syntax:   $-CTRL/Z                    _
+
+          Meaning:  Delete any output file which may be open, undo any
+                    edit  backup  in effect, and exit from TECO.  This
+                    command turns off special keypad  mode  and  moves
+                    the cursor to the bottom of the screen.
+
+          In TECO:  HK EK EX
+
+     VTEDIT  V03.00                                            Page 31
+
+
+                     Numeric Arguments
+
+     Simple  numeric  arguments  consist  of  ESCape  (or  the  ESCape
+     surrogate),  an  optional minus sign, and a digit string which is
+     always interpreted in decimal.   None  of  the  keystrokes  of  a
+     simple numeric argument echo on the terminal.
+
+     More advanced numeric arguments can be expressions using standard
+     arithmetic  operators.   These  numeric arguments also start with
+     ESCape or the ESCape surrogate,  an  optional  minus  sign,  and,
+     then,  a digit.  If the first non-digit typed is one of the valid
+     operators listed below, expression mode is entered.  The top line
+     of the display is erased and a line of the form:
+
+              Radix x, Expression arg1 op arg2
+
+     is displayed.  The initial radix is 10, arg1 will be the  initial
+     digit string, and op will be the operator.
+
+     Further digit string typing will fill in arg2 until  a  non-digit
+     is   typed.   If  it  is  another  valid  operator,  the  current
+     arg1 op arg2  expression  will  be  evaluated,  the  result  will
+     replace  arg1, arg2 will be set to zero, and op will be the typed
+     operator.
+
+     If it is  a  radix  change  command,  the  radix  is  immediately
+     changed.   No  evaluation  of  the  expression occurs.  The radix
+     change is local to the current numeric  expression;   it  is  not
+     subsequently remembered.
+
+     If it is an arg2 stand-in, the current arg2 is  replaced  by  the
+     specified value.
+
+     If it is RUBOUT, the current arg2 is reset to zero.
+
+     If it is CTRL/U, the  entire  expression  is  abandoned  and  the
+     display is fixed up.
+
+     Else it is  assumed  to  be  an  editing  command.   The  current
+     arg1 op arg2 will be evaluated and the result becomes the numeric
+     argument to that command.
+
+     The valid numeric expression operators are:
+
+          +  Addition
+          -  Subtraction
+          *  Multiplication
+          /  Division
+          #  Logical .OR.
+          &  Logical .AND.
+          =  Evaluate current arg1 op arg2
+
+     VTEDIT  V03.00                                            Page 32
+
+
+     The valid radix change commands are:
+
+          ^D Change radix to decimal (base 10)
+          ^O Change radix to octal (base 8)
+          ^X Change radix to hexidecimal (base 16)
+
+     The valid arg2 stand-ins are:
+
+          ^. Current value of the text buffer pointer
+          ^Z Current total number of characters in the text buffer
+          ^^x The value of character 'x'
+
+     VTEDIT  V03.00                                            Page 33
+
+
+                   Miscellaneous Commands
+
+
+          Command:  Find Front of File
+
+          Syntax:   $F                    _
+
+          Meaning:  The current file open for editing  is  closed  out
+                    and,  then, re-opened.  You are left positioned at
+                    the first page  of  the  file.   If  you  have  no
+                    current  output  file the terminal bell sounds and
+                    the command is ignored.
+
+          In TECO:  EC EBfile$ Y                             _
+
+
+          Command:  Worry About Operating System Crashing
+
+          Syntax:   $1$F                    _ _
+
+          Meaning:  Close out the file  currently  open  for  editing,
+                    re-open  it,  and  re-find  your  current  editing
+                    position.  Similiar  to  the  command  above,  but
+                    automatically  re-positions  you to where you left
+                    off editing.   This  command  is  useful  if  your
+                    operating system tends to crash...
+
+
+          Command:  Exit from TECO Marking Position
+
+          Syntax:   $0$F                    _ _
+
+          Meaning:  Close out the  file  currently  open  for  editing
+                    marking  the  current  editing  position.   TECO's
+                    memory file (TECFnn.TMP) is updated to reflect the
+                    file  currently  being edited and the /FIND switch
+                    is  appended  to  the  file  specification.   This
+                    command  is  used  in conjunction with the command
+                    below.
+
+
+          Command:  Find Marked Position
+
+          Syntax:   $-$F                    _ _
+
+          Meaning:  (Re-)find marked editing  position.   The  editing
+                    position  marked  by some previous $0$F command is                                                       _ _
+                    re-found.
+
+
+     VTEDIT  V03.00                                            Page 34
+
+
+          Command:  Redisplay Keypad Layout
+
+          Syntax:   $H                    _
+
+          Meaning:  Clear the screen and display the help text for the
+                    Video Terminal Editing macro.  Type any non-keypad
+                    character to redisplay the text window and  resume
+                    editing.   VTEDIT  does  not insert that character
+                    into the text.
+
+
+          Command:  Set Left Margin
+
+          Syntax:   [n]$M                       _
+
+          Meaning:  Set the left margin at column n.  If you have  set
+                    a  left  margin,  the VTEDIT automatically inserts
+                    enough tabs and spaces to get the  cursor  to  the
+                    margin  whenever  you type a carriage return or an
+                    open line command (7 key  on  keypad).   If  n  is
+                    negative,  VTEDIT  sets  the margin to -n and uses
+                    only spaces for filling.  If n is not present, the
+                    margin  is set at the current column.  If there is
+                    any text on the  line  when  this  you  give  this
+                    command, VTEDIT shifts it to the new margin.

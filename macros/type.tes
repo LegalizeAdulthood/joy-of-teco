@@ -1,0 +1,233 @@
+!		TYPE.TEC		!
+!	  !!TYPE.TEC V39.00!!		!
+!					!
+!     Last edit on  2-Jun-83 by MHB	!
+!					!
+! Switches:				!
+!					!
+!  /W	Announce file name(s)		!
+!  /-W	Don't announce file name(s)	!
+!  /H	Use VT52 hold screen mode	!
+!	 (/H => /H:n if not VT52)	!
+!	 => /W unless /-W		!
+!  /H:n	Count lines and hold		!
+!	 => /W unless /-W		!
+!  /T	Truncate long lines		!
+!  /S:"string" Pre-search for "string"	!
+!  /N:n	Start at page n or find nth	!
+!	 occurance of "string"		!
+!  /P	Start at top of page instead	!
+!	 of just before "string"	!
+!  /V	Change controls to visibles	!
+!  /O:n	Overprint each line n times	!
+!  /A:n	Print n lines around string	!
+!  /F:x	Flag L(ower) or U(pper) case	!
+!  /I	Inspect for wildcard selection	!
+!  /L:n	List the first n lines only	!
+!					!
+! Q-regs used:				!
+!					!
+!  0% <>0 file found; 0 otherwise	!
+!  1% <>0 print filename; 0 otherwise	!
+!  2% <>0 no wildcards; 0 otherwise	!
+!  3% # of lines to hold; 0 otherwise	!
+!  4% <>0 print from top of page	!
+!  5% current horizontal position	!
+!  6% <>0 search for "string" each time	!
+!  7% # of lines to list		!
+!  8% scratch				!
+!  9% scratch				!
+!  A% # parameter to +/- lines		!
+!  D% temporary text pointer holder	!
+!  H% # of lines before hold needed	!
+!  I% <>0 if inspect mode		!
+!  L% # of lines left to list		!
+!  O% # parameter to overprint count	!
+!  S% # parameter to string search	!
+!  X% scratch for X$			!
+!      VT05       VT52       VT100      !
+!  0$ '<cr>'  or '$F`$G' or '^Nd^O'	!
+!  1$ '<cr->' or '$Fd$G' or '^N|^O'	!
+!  2$ '<lf>'  or '$Fk$G' or '^Ne^O'	!
+!  3$ '<tab>' or '$Ff$G' or '^Nb^O'	!
+!  4$ '<vt>'  or '$Fj$G' or '^Ni^O"	!
+!  5$ '<ff>'  or '$Fa$G' or '^Nc^O'	!
+!  6$ '<esc>' or '$Fc$G' or '^N{^O'	!
+!  7$ '^'     or '$Fg$G' or '^Ng^O'	!
+!  8$ ''      or '$Fi$G' or '^N~^O'	!
+!  9$ '<eof>' or '$F~$G' or '^N`^O'	!
+!	or '' if not /V			!
+!  A$ filename as entered		!
+!  B$ wildcard filename if Q2=0		!
+!  C$ all control characters 0..31,127	!
+!  D$ temporary text holder		!
+!  E$ filename switches			!
+!  H$ 'hold prompt' macro; else null	!
+!  O$ 'overprint' macro and/or		!
+!     'line counting' macro; else null	!
+!  T$ temporary text for overprint	!
+!  S$ 'search string' macro; else <Y>	!
+!  V$ 'see all' macro or;		!
+!     'hold screen' macro; else HT	!
+!  W$ macro to output:			!
+!      VT05       VT52       VT100      !
+!       ''    or  '$'    or  '$['	!
+!  X$ macro to output in binary mode	!
+!					!
+
+! initialize registers and editing mode !
+^D 1,32768ET -1EU 4ED 0ES
+0U0 0U1 0U3 0U4 0U6 1UA 0UI 1US
+@^U9// @^UH// @^UO// @^US/QS< Y >/ @^UV/HT/ @^UX/UX 0,1ET QX^T 1,0ET/
+
+! strip the CCL command as needed !
+J ::@FS%TYPE%%"S ::@FS%^ES%%^[ '
+
+! check all valid switches !
+J :@S%/W%"S @FR// 1U1 '
+J :@S%/H%"S @FR// 24U3 ET&512"N 2:WU3 0:W"N ::@S%:%"U @I%:0% ' ^SC ' '
+   ::@S%:%"S @FR// \U1 @FR// Q1-1"G Q1U3 ' -1%3^[ Q3UH
+   @^UV/0U8 J < .-Z; MH0:; T L -1A-12"E -3%H^[ ' -1%H"L 0UH ' ET; >
+        Q8-26"E -1+ '/
+   @^UH/QH"E @^A%Press RETURN for more % 0,8ET ^TU8 8,0ET
+        13^T ET&512"N 0:W-6"N MW ^^K^T 13^T | F| ' | 10^T '
+        Q8-13"E ^T^[ '
+        Q8-10"E 1UH '
+        Q8-32"E 1UH '
+        Q8"D Q8-^^0UH '
+        QH"E Q3UH '
+        Q8-26"E 10^T HK -1+ ' '/ '
+   ET&512"N @^UW// 0:W-6"N @^UW/27MX/ 13^T 0:W"N :@^UW/^^[^T/ 27MX ^^<^T '
+   MW ^^H^T MW ^^J^T 0:W"N 27MX @^A/)0/ ^^O&31MX | 27MX ^^G^T
+   :QH"E 27MX ^^[^T ' ' 13^T ' ' 1U1 '
+J :@S%/T%"S @FR// 0,256ET '
+J :@S%/S:%"S @FR// .U0 @I%QS:@_% .,.+1XS 2@S%^EQS% Q0,.XS Q0,.K 0U0
+   :@^US/"S Q4"E -QAXD -ZK GD 0,0XD ' '/ J
+  :@S%/A%"S @FR// 3UA ::@S%:%"S @FR// \UA @FR// ' -1U6 ' '
+J :@S%/F%"S @FR// 0EU ::@S%:U%"S @FR// 1EU | ::@S%:L%"S @FR// 0EU ' ' '
+J :@S%/N%"S @FR// 1US ::@S%:%"S @FR// \US @FR// ' '
+J :@S%/L%"S @FR// 24U7 ET&512"N 2:WU7 '
+   ::@S%:%"S @FR// \U7 @FR// ' Q7UL
+   @^UO/J < QL"E ZK ' .-Z; L -1%L^[ > Z"E QL"E -1+ ' '/ '
+J :@S%/O%"S @FR// 1UO ::@S%:%"S @FR// \UO @FR// '
+   :@^UO/0"E J < .U9 @S%^M^J%; 2R Q9-."E 45< @I% % > 2C |
+                 13@I%% 13@I%% Q9,.XT QO< GT > 2C 13@I%% '
+               > 0,0XT | -1+ '/ '
+J :@S%/P%"S @FR// 1U4 '
+J :@S%/V%"S @FR// ET&512"N 0:WU0 | -1U0 ' Q0-6"E -1U0 '
+   Q0"L @^UW// | Q3"E @^UW/27MX/ 13^T Q0"N :@^UW/^^[^T/ 27MX ^^<^T '
+   Q0"N 27MX @^A/)0/ ^^O&31MX | 27MX ^^G^T ' 13^T ' '
+   !      VT05       VT52       VT100   !
+   !  0$ '<cr>'  or '$F`$G' or '^Nd^O'	!
+   !  1$ '<cr->' or '$Fd$G' or '^N|^O'	!
+   !  2$ '<lf>'  or '$Fk$G' or '^Ne^O'	!
+   !  3$ '<tab>' or '$Ff$G' or '^Nb^O'	!
+   !  4$ '<vt>'  or '$Fj$G' or '^Ni^O'	!
+   !  5$ '<ff>'  or '$Fa$G' or '^Nc^O'	!
+   !  6$ '<esc>' or '$Fc$G' or '^N{^O'	!
+   !  7$ '^'     or '$Fg$G' or '^Ng^O'	!
+   !  8$ ''      or '$Fi$G' or '^N~^O'	!
+   !  9$ '<eof>' or '$F~$G' or '^N`^O'	!
+   Q0"E 27@^U0// ^^F:@^U0// ^^`:@^U0// 27:@^U0// ^^G:@^U0//
+        27@^U1// ^^F:@^U1// ^^d:@^U1// 27:@^U1// ^^G:@^U1//
+        27@^U2// ^^F:@^U2// ^^k:@^U2// 27:@^U2// ^^G:@^U2//
+        27@^U3// ^^F:@^U3// ^^f:@^U3// 27:@^U3// ^^G:@^U3//
+        27@^U4// ^^F:@^U4// ^^j:@^U4// 27:@^U4// ^^G:@^U4//
+        27@^U5// ^^F:@^U5// ^^a:@^U5// 27:@^U5// ^^G:@^U5//
+        27@^U6// ^^F:@^U6// ^^c:@^U6// 27:@^U6// ^^G:@^U6//
+        27@^U7// ^^F:@^U7// ^^g:@^U7// 27:@^U7// ^^G:@^U7//
+        27@^U8// ^^F:@^U8// ^^i:@^U8// 27:@^U8// ^^G:@^U8//
+        27@^U9// ^^F:@^U9// ^^~:@^U9// 27:@^U9// ^^G:@^U9// '
+   Q0"G ^^N&31@^U0// ^^d:@^U0// ^^O&31:@^U0//
+        ^^N&31@^U1// ^^|:@^U1// ^^O&31:@^U1//
+        ^^N&31@^U2// ^^e:@^U2// ^^O&31:@^U2//
+        ^^N&31@^U3// ^^b:@^U3// ^^O&31:@^U3//
+        ^^N&31@^U4// ^^i:@^U4// ^^O&31:@^U4//
+        ^^N&31@^U5// ^^c:@^U5// ^^O&31:@^U5//
+        ^^N&31@^U6// ^^{:@^U6// ^^O&31:@^U6//
+        ^^N&31@^U7// ^^g:@^U7// ^^O&31:@^U7//
+        ^^N&31@^U8// ^^~:@^U8// ^^O&31:@^U8//
+        ^^N&31@^U9// ^^`:@^U9// ^^O&31:@^U9// '
+   Q0"L @^U0%<cr>%
+        @^U1%<cr->%
+        @^U2%<lf>%
+        @^U3%<tab>%
+        @^U4%<vt>%
+        @^U5%<ff>%
+        @^U6%<esc>%
+        @^U7%^%
+        @^U8%%
+        @^U9%<eof>% '
+   @^UV/0U8 < 1,0ET ET; J @S%^EGC%; -1AU9 MH0:; 0,.-1T .-1%5^[ 0,.K ET; 0,1ET
+             Q9-09"E :G3 %5^[ -Q5&7< :G8 %5^[ > F< '
+             Q9-13"E Z"N 0A-10"E :G0 D @O!C! ' ' :G1
+              !C! 13^T 1,0ET 13^T 10^T 0U5 -1%H^[ F< '
+             Q9-10"E :G2 Z"E A ' Z"N 0A-13"E :G1 D @O!C! ' '
+              !S! 13^T 1,0ET 13^T 10^T -1%H^[ MH0:; 0,1ET Q5< :G8 > F< '
+             Q9-11"E :G4 @O!S! '
+             Q9-12"E :G5 @O!S! '
+             Q9-27"E :G6 %5^[ F< '
+                     :G7 1,0ET Q9+64^T 2%5^[ > 1,0ET ET"L HT ' Q8-26"E -1+ '/
+   @^UC// 0U0 32< Q0:@^UC// %0^[ > 127:@^UC// 0U0 '
+J :@S%/-W%"S @FR// -1U1 '
+J :@S%/I%"S @FR// 1UI 1U1 '
+
+! strip all spaces & tabs and post fix extension (if none found) !
+HXA HXB 0,0XE 1U2 J :@S%"%"U 0,0XA 0,0XB J < @FS/^ES//; >
+J < @S%:%; 0,.:XA 0,.K >
+J :@S%[%"S .-1U9 @S%]% Q9,.:XA Q9,.K '
+J :@S%(%"S .-1U9 @S%)% Q9,.:XA Q9,.K '
+J :@S%<%"S .-1U9 @S%>% -1EJ-4"E Q9,.:XB | Q9,.:XA ' Q9,.K '
+J :@S%/%"S R .,Z:XE .,ZK '
+^^%U8 -1EJ-4"E ^^?U8
+ J :@S%$%"S ^^$:@^UA%% -D '
+ J :@S%&%"S ^^&:@^UA%% -D '
+ J :@S%!%"S ^^!:@^UA%% -D '
+ J :@S/%/"S ^^%:@^UA%% -D '
+ J :@S%#%"S ^^#:@^UA%% -D '
+ J :@S%@%"S ^^@:@^UA%% -D ' '
+Z"E -1EJ-5"E @I%*.LIS% | @I%*.LST% ' |
+ J :@S%.%"F HXD ZJ @I%.*% -1EJ-5"E :QA"E :@ER%^EQD^EQE%"S -2D ' ' ' |
+  R ."E @I%*% ' ' '
+J GA ZJ GB HXA
+J :@S%^EU8%"S 0U2 %1^[ ' :@S%*%"S 0U2 %1^[ ' HXB Q2"E @EN/^EQA/ ' '
+
+ @EI// ET&256"N -1EJ-4"E 0,32#8ET ^T^[ 32#8,0ET ' '
+
+! loop for all files !
+< Q2"N @O!NOLOOK! ' :@EN//; HK G* HXB !NOLOOK! HK :@ER/^EQB^EQE/"U @O!EOF! '
+
+! yank first page (possibly more) !
+MS ET"G @O!CTRLC! ' Z"E ^E"T 12@I%% ' A '
+
+! count files !
+%0^[ 1,16ET MH0:; 13^T 10^T -1%H^[ 0U5
+
+! announce file if requested !
+Q1"G @^A%File: % :G* -1%H"L 0UH '
+QI"N @^A%? % ^T&95U8 Q8-13"E ^T^[ | 13^T 10^T '
+ Q8-26"E 0; ' Q8-^^Y"N @O!EOF! ' |
+13^T 10^T ' 13^T 10^T -1%H"L 0UH ' '
+
+! now loop until done or no file found !
+< ET"G @O!CTRLC! ' .UD 0,0XD
+  < ^E"T ZJ 12@I%% ' QDJ Q6; HXD QA+1L .-Z#^E#^N"E 0,0XD A F< ' ZK 0; >
+  MO0:; MV0:; ET"G @O!CTRLC! ' HK
+  Q6"N MH0:; @^A%**********% 13^T 10^T -1%H^[ GD 0,0XD QDJ L MS -Z; |
+  ^N:; Y ' >
+:Q9"N 0,1ET :G9 13^T 1,0ET 13^T 10^T -1%H"L 0UH ' '
+!EOF! Q2"N 0; ' Q7UL >
+
+! if no file found inform as much !
+Q0"E @^A"
+%No file" Q2"E @^A%s% ' @^A% matching "% :GA @^A%"% 13^T 10^T ' @O!EXIT!
+
+! trap CTRL/C for a clean exit !
+!CTRLC! -Q3U3
+
+! restore terminal modes and exit !
+!EXIT! 0:W-6"E 0U3 '
+ Q3"N 1,16ET 27MX ^^\^T '
+ 0Q0-27"E 27MX ^^G^T ' 0Q0-(^^N&31)"E ^^O&31MX '
+ Q3"L MW ^^H^T MW ^^J^T '
+ HK ^C^C 

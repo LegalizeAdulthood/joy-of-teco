@@ -1,0 +1,5 @@
+
+	DETAB.TEC replaces tabs in a file with spaces.  Tab stops are
+	assumed to occur every 8 spaces.
+
+	Usage: MUNG detab,file

@@ -1,0 +1,104 @@
+!   This is Pete Siemsen's TECO initialization file.  To convert it
+to TECO.INI under VAX/VMS,  say
+
+	$ MUNG SQU TECO.INI=TECO.TES/D:N/L:Y/B:Y/T:Y/C:Y/W:N/A:Y/E:N
+
+NOTE: executing this initialization file when doing a MUNG command will
+cause TECO32 to crash.  TECO32 doesn't like the 0,256et command.  For this
+reason,  execute MUNG with the /NOINI switch.
+!
+
+0,32ed            !  enable function key escape sequences !
+0,256et           !  turn off line wrapping !
+0,8192et          !  allow accent grave as escape !
+
+!  Insert a macro into q-register "A" to handle function keys !
+
+@^ua&UA@O#,T1,T2,T3#
+
+!T1!
+QA@O#,UA,DA,RA,LA,,,,,,,,,ENTER,,,PF1,PF2,PF3,PF4#
+!UA!-l                                 !  up arrow !
+!DA!l                                  !  down arrow !
+!RA!c                                  !  right arrow !
+!LA!r                                  !  left arrow !
+!PF1!13^T10^T10^TPF1?13^T10^T
+
+!PF2!13^T10^T10^TPF2?13^T10^T
+
+!PF3!13^T10^T10^TPF3?13^T10^T
+
+!PF4!13^T10^T10^TPF4?13^T10^T
+
+!ENTER!13^T10^T10^TENTER?13^T10^T
+
+
+!T2!
+QA-12@O#KC,KM,KP,15,K0,K1,K2,K3,K4,K5,K6,K7,K8,K9#
+!KC!13^T10^T10^TKeypad comma?13^T10^T
+
+!KM!13^T10^T10^TKeypad minus?13^T10^T
+
+!KP!13^T10^T10^TKeypad period?13^T10^T
+
+!K0!13^T10^T10^TKeypad 0?13^T10^T
+
+!K1!13^T10^T10^TKeypad 1?13^T10^T
+
+!K2!13^T10^T10^TKeypad 2?13^T10^T
+
+!K3!13^T10^T10^TKeypad 3?13^T10^T
+
+!K4!13^T10^T10^TKeypad 4?13^T10^T
+
+!K5!13^T10^T10^TKeypad 5?13^T10^T
+
+!K6!13^T10^T10^TKeypad 6?13^T10^T
+
+!K7!13^T10^T10^TKeypad 7?13^T10^T
+
+!K8!13^T10^T10^TKeypad 8?13^T10^T
+
+!K9!13^T10^T10^TKeypad 9?13^T10^T
+
+
+!T3!
+QA@O#,FND,INS,REM,SEL,PRE,NXT#
+QA-17@O#F6,F7,F8,F9,F10,,F11,F12,F13,F14,,HELP,DO,,F17,F18,F19,F20#
+!FND!s
+
+!INS!gg
+
+!REM!qg,.xgqg,.d
+
+!SEL!.ug
+
+!PRE!-(2:w-3)l                         !  previous screen !
+!NXT!2:w-3l                            !  next screen !
+!F6!13^T10^T10^TF6?13^T10^T
+
+!F7!13^T10^T10^TF7?13^T10^T
+
+!F8!13^T10^T10^TF8?13^T10^T
+
+!F9!13^T10^T10^TF9?13^T10^T
+
+!F10!13^T10^T10^TF9?13^T10^T
+
+!F11!13^T10^T10^TF11?13^T10^T
+
+!F12!-1lt                              !  "backspace" key !
+!F13!lt                                !  "line feed" key !
+!F14!13^T10^T10^TF14?13^T10^T
+
+!HELP!13^T10^T10^THELP?13^T10^T
+
+!DO!13^T10^T10^TDO?13^T10^T
+
+!F17!1:W-80"e132,1:w|80,1:w'           !  toggle screen width !
+!F18!3:w"e1,3:w|0,3:w'                 !  toggle SEEALL mode !
+!F19!13^T10^T10^TF19?13^T10^T
+
+!F20!7:W"E3,7:W|0,7:W'                 !  toggle scrolling mode !
+&
+

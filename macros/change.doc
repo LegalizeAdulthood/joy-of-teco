@@ -1,0 +1,37 @@
+The CHANGE program functions like the VAX/VMS SEARCH command, but allows
+the user to make global changes across several files.
+
+Under VMS, define a symbol for the CHANGE command that looks something
+like this:
+
+	CH*ANGE :== $SYS$SYSTEM:TECO MUNG SYS$SYSTEM:CHANGE
+
+	This assumes that you have TECO loaded into SYS$SYSTEM ([SYSEXE])
+and have loaded CHANGE.TEC into the same directory.
+
+CHANGE designed to be used by people familiar with the SEARCH program,
+so the prompts are almost identical. CHANGE asks you for the file name(s)
+you want the changes to occur in (wildcards are ok). It then prompts for
+the string to be replaced and the new replacement string to be used.
+
+	A shortcoming of the SEARCH program is that it can't search for
+strings containing carriage return/line feed pairs. CHANGE will handle these
+strings. It accepts the two strings arguments in one of two ways:
+
+	1. the regular way, carriage return or escape ends the string
+
+	2. the delimited way. The user hits an escape key when prompted
+	   for the string. The escape is not echoed and is not a part
+	   of the string. Only an escape can terminate the string.
+
+	Another advantage of the CHANGE program is that, since it builds
+and executes a TECO command string, TECO pattern matching characters (like
+^Ed (match a digit) ^Es (match any sequence of spaces and tabs) ^Ex (match
+any single character), etc.) are allowed in the search string. Also, TECO
+case significance control (^V, ^W, etc.) is also legal. Refer to a TECO
+manual for a full description of TECO search strings.
+
+	File CHANGE.TES contains the documented source code for the program.
+It can be executed. It takes a short while to compress it for speed. The basic
+idea is to find the labels, remember their locations, then delete all tags
+and re-insert the labels.

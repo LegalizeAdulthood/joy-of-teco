@@ -1,0 +1,15 @@
+            LOCAL.TEC - the MACRO local symbol reordering macro
+
+     This macro will reorder local symbol blocks in MACRO-11 (.MAC) or
+     MACRO/VAX (.MAR) programs.
+
+     LOCAL.TEC  is  loaded  into  Q-register  L  by  using  EI  (e.g.,
+     EILOCAL$).
+
+     Saying ML$$ will reorder the  local  symbol  block  in  the  text
+     buffer  setting  the  first  local  symbol to 10$ and going up in
+     increments of 10.
+
+     Saying nML$$ will reorder starting at n (the increment stays 10).
+
+     The increment can be changed by nUL.

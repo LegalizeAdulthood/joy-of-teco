@@ -1,0 +1,30 @@
+! this doesn't work !
+
+! this code gets the day of the week in q-register M  !
+! under VAX/VMS and RSX-11                            ! 
+^B&^O740/32UM            ! get month in q-register M  !
+^B/^D512UY               ! get  year in q-register Y  !
+^B&^O37UD                ! get   day in q-register D  !
+^D                       !   reset radix to decimal   !
+QM-2"=31%D'
+QM-3"=59%D'
+QM-4"=90%D'
+QM-5"=120%D'
+QM-6"=151%D'
+QM-7"=181%D'
+QM-8"=212%D'
+QM-9"=243%D'
+QM-10"=273%D'
+QM-11"=304%D'
+QM-12"=334%D'
+QY&3"=QD-59">%D''        !  correct for leap years    !
+QY+QD+(QY-1/4)UM
+QM-(QM/7*7)UM
+QM"=^UMSUN'
+QM-1"=^UMMON'
+QM-2"=^UMTUE'
+QM-3"=^UMWED'
+QM-4"=^UMTHU'
+QM-5"=^UMFRI'
+QM-6"=^UMSAT'
+

@@ -1,0 +1,172 @@
+!MACRO formatter!
+! * * * * * * * * * * * * * * * * * * * !
+!					!
+!	      FMTMAC.TEC		!
+!	 !!FMTMAC.TEC V39.00!!		!
+!					!
+!     Last edit on  2-Jun-83 by MHB	!
+!					!
+! * * * * * * * * * * * * * * * * * * * !
+!					!
+! This is a PDP-11 macro (.MAC) source	!
+!  program formatter that runs under	!
+!  VTEDIT.TEC.				!
+!					!
+! The algorithm used is very simple and	!
+!  handles the necessary upper case	!
+!  conversions needed to obey the	!
+!  macro source program formatting	!
+!  standard:				!
+!					!
+!    Everything is in upper case	!
+!    except for comments (everything	!
+!    after a semi-colon [;]) and	!
+!    everything following the assembler	!
+!    directives:			!
+!	1) .ASCII, .ASCIZ, etc.		!
+!	   [found as .ASCIa]		!
+!	2) .TITLE			!
+!	3) .SBTTL			!
+!					!
+! The algorithm also automatically	!
+!  aligns comments on the 4th tab stop.	!
+!					!
+! * * * * * * * * * * * * * * * * * * * !
+!					!
+! Environment:				!
+!					!
+! This macro is invoked whenever a text	!
+!  buffer insert must be done.  The	!
+!  macro figures out the correct case	!
+!  for the insert, does the insert, and	!
+!  all further insert(s) until a non-	!
+!  insert character (i.e., a command	!
+!  character) is encountered.		!
+!					!
+! Entry values:				!
+!					!
+!  7% Character to insert into text	!
+!					!
+! Exit values:				!
+!					!
+!  7% Exception character (set by M3)	!
+!					!
+! Q-register usage:			!
+!					!
+!  M$ This macro			!
+!  M% Exception character(s) for 8M3	!
+!  2$ Local scratch			!
+!  2% Local scratch (clobbered by M3)	!
+!  3% Local scratch (clobbered by M3)	!
+!  4$ Local scratch			!
+!  4% Local scratch (clobbered by M3)	!
+!  5% Local scratch (clobbered by M3)	!
+!  6% Local scratch (clobbered by M3)	!
+!  7% Exception character (set by M3)	!
+!					!
+! * * * * * * * * * * * * * * * * * * * !
+!					!
+! If character is not a semi-colon then	!
+!  Insert character into text buffer	!
+Q7-^^;"N
+  Q7@I%%
+'
+! Save dot				!
+.U3
+! Guess at lower case inserts (0)	!
+! Guess at no exception characters (0)	!
+! Check for being beyond a semi-colon	!
+! (beyond ; => lc, no exceptions)	!
+! If not beyond a semi-colon then	!
+!  Set upper case inserts (4)		!
+!  Set exception characters to ";", "."	!
+!  Check for being beyond a dot		!
+!  (not beyond . => uc until ; or .)	!
+!  If beyond a dot then			!
+!   Set upper case inserts (4)		!
+!   Set <TAB> as an exception (2)	!
+!   Set exception characters to ";",<SP>!
+!   Check for .aaaaa directive		!
+!   (no .aaaaa => uc until ; or blank)	!
+!   If .aaaaa directive then		!
+!    If we're after it then		!
+!     Back up to face the directive	!
+!     If it's .ASCIa, etc. then		!
+!      Set lower case inserts (0)	!
+!      Set no exception characters (0)	!
+0U5
+0UM
+0:@FB%;%"U
+  4U5
+  ^^;*256+^^.UM
+  0:@FB%.%"S
+  4#2U5
+  ^^;*256+32UM
+    ::@S%^EA^EA^EA^EA^EA^ES%"S
+      Q3-.+1"G
+        ^SC
+        ::@S%ASCI%"U
+          ::@S%TITLE%"S F| '
+          ::@S%SBTTL%"S F| '
+        |
+          0U5
+          0UM
+        '
+      '
+    '
+  '
+'
+! Restore dot				!
+Q3J
+! Correct case of insert if needed	!
+Q7"V
+  Q5"N
+    -D Q7-32@I%%
+  '
+'
+! If the character is semi-colon then	!
+!  Insert the semi-colon into buffer	!
+!  If we're in upper case mode then	!
+!   If we're not at line's start then	!
+!    If at end-of-buffer then		!
+!     Insert and back over a <CR><LF>	!
+!    If we're at line's end then	!
+!     Delete any trailing blanks	!
+!     Find position of the semi-colon	!
+!     Find distance to desired position	!
+!     If we need spacing then		!
+!      Insert correct number of <TAB>s	!
+!     Else				!
+!      Insert a single <SP>		!
+!     Skip semi-colon and insert a <SP>	!
+!  Set lower case inserts (0)		!
+!  Set no exception characters (0)	!
+Q7-^^;"E
+  @I%;%
+  Q5"N
+    0^Q+1"N
+      .-Z"E
+        13@I%% 10@I%% 2R
+      '
+      ::@S%^M^J%"S
+        3R < 0^Q; R ::@FS%^ES%%; >
+        0L 0U3 ^Q-3< %3^[ 0A-9"E -Q3&7%3^[ ' C >
+        32-Q3U3
+        Q3"G
+          Q3+7/8< 9@I%% >
+        |
+          32@I%%
+        '
+        C 32@I%%
+      '
+    '
+  '
+  0U5
+  0UM
+'
+! Read from terminal doing insert(s)	!
+!  with correct case (Q5)		!
+!  using exception characters (8)	!
+Q5#8M3^[
+!					!
+! * * * * * * * * * * * * * * * * * * * !
